@@ -195,7 +195,7 @@ def finalizar_pedido():
 # ---------------- INTERFAZ ----------------
 
 root = tk.Tk()
-root.title("Sistema Logístico")
+root.title("Stockify - Sistema Logístico")
 root.geometry("950x650")
 
 tk.Button(root,text="Cargar Catálogo",command=cargar_catalogo).pack(pady=5)
