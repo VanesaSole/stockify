@@ -1,11 +1,11 @@
 # logic.py
 
-# ---------------- BUSCADOR ----------------
+# =====================================================
+# BUSCADOR
+# =====================================================
 
 def buscar_productos(texto, productos, limite=30):
-    """
-    Filtra productos según texto ingresado.
-    """
+
     if not texto:
         return []
 
@@ -19,153 +19,202 @@ def buscar_productos(texto, productos, limite=30):
     return resultados[:limite]
 
 
-# ---------------- VALIDACIÓN ----------------
+# =====================================================
+# VALIDAR CANTIDAD
+# =====================================================
 
 def convertir_cantidad(valor):
-    """
-    Convierte string a float válido.
-    """
+
     if not valor:
         return None
 
-    valor = valor.replace(",", ".")
+    valor = str(valor).replace(",", ".")
 
     try:
         return float(valor)
-    except ValueError:
+
+    except:
         return None
 
 
-# ---------------- AGREGAR PRODUCTO ----------------
+# =====================================================
+# LIMPIAR PRECIOS
+# =====================================================
+
+def limpiar_precio(valor):
+
+    if valor is None:
+        return 0
+
+    valor = str(valor)
+
+    valor = valor.replace("$", "")
+    valor = valor.replace(",", "")
+    valor = valor.strip()
+
+    try:
+        return float(valor)
+
+    except:
+        return 0
+
+
+# =====================================================
+# OBTENER DATOS PRODUCTO
+# =====================================================
 
 def obtener_datos_producto(producto, catalogo_dict):
-    """
-    Busca los datos de un producto en el catálogo.
-    """
-    if not catalogo_dict:
+
+    if producto not in catalogo_dict:
         return None
 
-    fila = catalogo_dict.get(producto)
+    fila = catalogo_dict[producto]
 
-    if not fila:
-        return None
+    costo = limpiar_precio(
+        fila.get("P.Costo", 0)
+    )
+
+    venta = limpiar_precio(
+        fila.get("P.Venta", 0)
+    )
+
+    mayoreo = limpiar_precio(
+        fila.get("P.Mayoreo", 0)
+    )
 
     return {
-        "costo": fila.get("precio_costo", ""),
-        "venta": fila.get("precio_venta", ""),
-        "mayoreo": fila.get("precio_mayoreo", "")
+        "costo": costo,
+        "venta": venta,
+        "mayoreo": mayoreo
     }
 
 
-def construir_fila_tabla(producto, cantidad, datos_producto, modo):
-    """
-    Construye la fila que se insertará en la tabla.
-    """
+# =====================================================
+# CONSTRUIR FILA
+# =====================================================
+
+def construir_fila_tabla(
+    producto,
+    cantidad,
+    datos_producto,
+    modo
+):
+
     if modo == "PEDIDO":
+
         return (
             producto,
-            cantidad,
-            "", "", ""
+            cantidad
         )
 
-    elif modo == "ENVIO":
-        return (
-            producto,
-            cantidad,
-            datos_producto.get("costo", ""),
-            datos_producto.get("venta", ""),
-            datos_producto.get("mayoreo", "")
-        )
+    costo = datos_producto["costo"]
+
+    venta = datos_producto["venta"]
+
+    mayoreo = datos_producto["mayoreo"]
+
+    total = cantidad * costo
+
+    return (
+        producto,
+        cantidad,
+        costo,
+        venta,
+        mayoreo,
+        total
+    )
 
 
-def agregar_producto(producto, cantidad_str, catalogo_dict, modo):
-    """
-    Procesa la lógica completa de agregar producto.
-    """
+# =====================================================
+# AGREGAR PRODUCTO
+# =====================================================
 
-    cantidad = convertir_cantidad(cantidad_str)
+def agregar_producto(
+    producto,
+    cantidad_str,
+    catalogo_dict,
+    modo
+):
+
+    cantidad = convertir_cantidad(
+        cantidad_str
+    )
 
     if cantidad is None:
+
         return {
             "error": "Cantidad inválida"
         }
 
-    datos_producto = obtener_datos_producto(producto, catalogo_dict)
+    datos_producto = obtener_datos_producto(
+        producto,
+        catalogo_dict
+    )
 
     if not datos_producto:
+
         return {
             "error": "Producto no encontrado"
         }
 
-    fila = construir_fila_tabla(producto, cantidad, datos_producto, modo)
+    fila = construir_fila_tabla(
+        producto,
+        cantidad,
+        datos_producto,
+        modo
+    )
 
     return {
         "fila": fila
     }
 
 
-# ---------------- ELIMINAR ----------------
-
-def eliminar_indices(lista_datos, indices):
-    """
-    Elimina elementos de una lista según índices.
-    """
-    return [
-        item for i, item in enumerate(lista_datos)
-        if i not in indices
-    ]
-
-
-# ---------------- MODO ----------------
+# =====================================================
+# CAMBIAR MODO
+# =====================================================
 
 def cambiar_modo(modo_actual):
-    """
-    Alterna entre PEDIDO y ENVIO.
-    """
+
     if modo_actual == "PEDIDO":
         return "ENVIO"
+
     return "PEDIDO"
 
 
-# ---------------- EXPORTACIÓN ----------------
+# =====================================================
+# EXPORTAR
+# =====================================================
 
-def preparar_datos_exportacion(datos_tabla, modo):
-    """
-    Prepara los datos según el modo para exportar.
-    """
+def preparar_datos_exportacion(
+    datos_tabla,
+    modo
+):
+
     if modo == "PEDIDO":
-        columnas = ["Descripción", "Cantidad"]
 
-        datos = [
-            (fila[0], fila[1])
-            for fila in datos_tabla
+        columnas = [
+            "Producto",
+            "Cantidad"
         ]
 
     else:
+
         columnas = [
-            "Descripción",
+            "Producto",
             "Cantidad",
             "Costo",
             "Venta",
-            "Mayoreo"
+            "Mayoreo",
+            "Total"
         ]
 
-        datos = datos_tabla
+    return columnas, datos_tabla
 
-    return columnas, datos
 
+# =====================================================
+# VALIDAR TABLA
+# =====================================================
 
 def validar_tabla_vacia(datos_tabla):
-    """
-    Verifica si hay productos en la tabla.
-    """
+
     return len(datos_tabla) == 0
-
-
-# ---------------- UTILIDAD GENERAL ----------------
-
-def limpiar_texto(texto):
-    """
-    Limpia texto de espacios innecesarios.
-    """
-    return texto.strip() if texto else ""

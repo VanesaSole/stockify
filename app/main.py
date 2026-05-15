@@ -1,16 +1,19 @@
 # main.py
 
 import tkinter as tk
-from ui import App
+
+from database import crear_tablas
+
+from login_ui import LoginUI
 
 
 def main():
+
+    crear_tablas()
+
     root = tk.Tk()
 
-    # opcional: mejorar apariencia inicial
-    root.minsize(800, 600)
-
-    app = App(root)
+    LoginUI(root)
 
     root.mainloop()
 
