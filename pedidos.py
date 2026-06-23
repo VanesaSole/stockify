@@ -44,6 +44,8 @@ class Pedido:
         paq = producto[4]
 
         costo = producto[5]
+        
+        venta = producto[6]  # PRECIO DE VENTA
 
         if tipo.upper() == "BULTO":
 
@@ -53,7 +55,8 @@ class Pedido:
 
             unidades = cantidad
 
-        subtotal = unidades * costo
+        # Usar PRECIO DE VENTA para el cálculo del subtotal
+        subtotal = unidades * venta
 
         item = {
 
@@ -67,8 +70,8 @@ class Pedido:
 
             "unidades": unidades,
 
-            "precio": costo,
-
+            "precio": venta,  # Mostrar precio de venta
+            "precio_unitario": venta,  # Precio unitario (después de PAQ)
             "subtotal": subtotal,
 
             "stock": stock

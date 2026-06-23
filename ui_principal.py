@@ -14,9 +14,16 @@ from tema import *
 
 class VentanaPrincipal:
 
-    def __init__(self, usuario=None):
+    def __init__(self, usuario=None, master=None):
 
-        self.root = tk.Tk()
+        # Si se pasa un master (ventana principal ya creada), usamos Toplevel
+        # para evitar crear múltiples instancias de Tk().
+        if master is not None:
+            self.root = tk.Toplevel(master)
+            # Cuando el Toplevel se cierra, cerrar la aplicación completa
+            self.root.protocol("WM_DELETE_WINDOW", lambda: master.destroy())
+        else:
+            self.root = tk.Tk()
 
         self.usuario = usuario
 
@@ -38,7 +45,9 @@ class VentanaPrincipal:
 
         self.root.bind("<F4>", lambda e: self.abrir_reportes())
 
-        self.root.mainloop()
+        # Solo ejecutamos mainloop si esta clase creó la raíz Tk
+        if master is None:
+            self.root.mainloop()
 
 
     # ===================================

@@ -285,9 +285,10 @@ class VentanaLogin:
 
             )
 
-            self.root.destroy()
-
-            VentanaPrincipal(user_data)
+            # Ocultamos la ventana de login y abrimos la principal como Toplevel
+            # para no crear una nueva instancia de Tk y evitar nested mainloops.
+            self.root.withdraw()
+            VentanaPrincipal(user_data, master=self.root)
 
         else:
 

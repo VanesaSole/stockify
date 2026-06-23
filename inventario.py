@@ -37,6 +37,7 @@ def importar_catalogo_excel(ruta_excel):
             costo = 0
             venta = 0
             mayoreo = 0
+            stock = 0
 
             # detectar columnas automáticamente
             for col in df.columns:
@@ -63,6 +64,12 @@ def importar_catalogo_excel(ruta_excel):
                     mayoreo = limpiar_numero(
                         fila[col]
                     )
+                
+                # LEER STOCK/EXISTENCIA DEL EXCEL
+                elif "existencia" in nombre:
+                    stock = limpiar_numero(
+                        fila[col]
+                    )
 
             if not producto or producto == "nan":
                 continue
@@ -72,7 +79,7 @@ def importar_catalogo_excel(ruta_excel):
             )
 
             cursor.execute("""
-            INSERT OR IGNORE INTO productos (
+            INSERT INTO productos (
 
                 codigo,
                 nombre,
@@ -85,11 +92,17 @@ def importar_catalogo_excel(ruta_excel):
 
             )
             VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))
+            
+            ON CONFLICT(nombre) DO UPDATE SET
+                stock = excluded.stock,
+                costo = excluded.costo,
+                venta = excluded.venta,
+                mayoreo = excluded.mayoreo
             """, (
 
                 None,
                 producto,
-                0,
+                stock,
                 paq,
                 costo,
                 venta,

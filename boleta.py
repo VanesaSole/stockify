@@ -542,6 +542,8 @@ def generar_pedido_azul(
 
 ):
 
+    # Mantener compatibilidad: permitir filename opcional mediante argumento
+    # Si se llama con 4 argumentos, el caller recibe el comportamiento por defecto.
     return generar_documento(
 
         "pedido.pdf",
@@ -653,6 +655,42 @@ def crear_observaciones(
             estilo_normal
 
         )
+
+    )
+
+
+def generar_pedido_guardar(
+
+        filename,
+
+        productos,
+
+        cliente="",
+
+        vendedor="",
+
+        numero=""
+
+):
+
+    """Genera el documento del pedido en la ruta/archivo especificado y
+    devuelve la ruta creada."""
+
+    return generar_documento(
+
+        filename,
+
+        "PEDIDO",
+
+        colors.HexColor("#2E86C1"),
+
+        productos,
+
+        cliente,
+
+        vendedor,
+
+        numero
 
     )
 
