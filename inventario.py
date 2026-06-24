@@ -29,10 +29,13 @@ def importar_catalogo_excel(ruta_excel):
         cursor = conn.cursor()
 
         productos_importados = 0
+        productos_actualizados = 0
 
         for _, fila in df.iterrows():
 
             producto = ""
+
+            codigo = None
 
             costo = 0
             venta = 0
@@ -44,8 +47,13 @@ def importar_catalogo_excel(ruta_excel):
 
                 nombre = col.lower()
 
-                if "producto" in nombre:
+                if "producto" in nombre or "descripci" in nombre:
                     producto = str(fila[col]).strip()
+
+                elif "código" in nombre or "codigo" in nombre:
+                    codigo = limpiar_codigo(
+                        fila[col]
+                    )
 
                 elif "costo" in nombre:
                     costo = limpiar_numero(
@@ -64,9 +72,11 @@ def importar_catalogo_excel(ruta_excel):
                     mayoreo = limpiar_numero(
                         fila[col]
                     )
-                
-                # LEER STOCK/EXISTENCIA DEL EXCEL
-                elif "existencia" in nombre:
+
+                elif (
+                    "existencia" in nombre
+                    or "stock" in nombre
+                ):
                     stock = limpiar_numero(
                         fila[col]
                     )
@@ -77,6 +87,11 @@ def importar_catalogo_excel(ruta_excel):
             paq = obtener_paq(
                 producto
             )
+
+            # Clave de unicidad real: el código del Excel si existe.
+            # Si la fila no trae código, usamos el nombre como fallback
+            # para no duplicar el mismo producto en cada reimportación.
+            clave_unica = codigo if codigo else f"NOMBRE::{producto.upper()}"
 
             cursor.execute("""
             INSERT INTO productos (
@@ -92,15 +107,18 @@ def importar_catalogo_excel(ruta_excel):
 
             )
             VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))
-            
-            ON CONFLICT(nombre) DO UPDATE SET
-                stock = excluded.stock,
+
+            ON CONFLICT(codigo) DO UPDATE SET
+
+                nombre = excluded.nombre,
+                paq = excluded.paq,
                 costo = excluded.costo,
                 venta = excluded.venta,
                 mayoreo = excluded.mayoreo
+
             """, (
 
-                None,
+                clave_unica,
                 producto,
                 stock,
                 paq,
@@ -123,6 +141,32 @@ def importar_catalogo_excel(ruta_excel):
         print(e)
 
         return 0
+
+
+# =====================================================
+# LIMPIAR CÓDIGO (clave única del Excel)
+# =====================================================
+
+def limpiar_codigo(valor):
+    """Normaliza el código/SKU del Excel a texto.
+    Devuelve None si la celda está vacía, es 'nan' o es un guion '-'."""
+
+    if valor is None:
+        return None
+
+    texto = str(valor).strip()
+
+    if texto in ("", "nan", "-", "None"):
+        return None
+
+    # Si pandas lo trajo como float (p.ej. 123.0), lo normalizamos a entero
+    try:
+        if texto.endswith(".0"):
+            texto = texto[:-2]
+    except Exception:
+        pass
+
+    return texto
 
 
 # =====================================================

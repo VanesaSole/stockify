@@ -16,14 +16,14 @@ class VentanaPrincipal:
 
     def __init__(self, usuario=None, master=None):
 
-        # Si se pasa un master (ventana principal ya creada), usamos Toplevel
-        # para evitar crear múltiples instancias de Tk().
-        if master is not None:
-            self.root = tk.Toplevel(master)
-            # Cuando el Toplevel se cierra, cerrar la aplicación completa
-            self.root.protocol("WM_DELETE_WINDOW", lambda: master.destroy())
-        else:
-            self.root = tk.Tk()
+        # VentanaPrincipal siempre administra su propia ventana raíz
+        # (tk.Tk()), incluso si se le pasa un "master": Tkinter no
+        # admite múltiples instancias de Tk() en el mismo proceso,
+        # así que cualquier ventana anterior (por ejemplo, el login)
+        # debe destruirse antes de llegar a este punto.
+        self._master_externo = master
+
+        self.root = tk.Tk()
 
         self.usuario = usuario
 
@@ -45,9 +45,7 @@ class VentanaPrincipal:
 
         self.root.bind("<F4>", lambda e: self.abrir_reportes())
 
-        # Solo ejecutamos mainloop si esta clase creó la raíz Tk
-        if master is None:
-            self.root.mainloop()
+        self.root.mainloop()
 
 
     # ===================================

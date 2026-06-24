@@ -1,13 +1,11 @@
 # ui_pedidos.py
 
 import tkinter as tk
-from tkinter import ttk, messagebox, filedialog
-from datetime import datetime
+from tkinter import ttk, messagebox
 
 from pedidos import Pedido
 from inventario import buscar_productos, obtener_producto
 from boleta import generar_pedido_azul
-import os
 
 from tema import *
 
@@ -20,16 +18,11 @@ class VentanaPedidos(tk.Toplevel):
 
         self.title("Nuevo Pedido")
 
-        self.update_idletasks()
-        screen_width = self.winfo_screenwidth()
-        screen_height = self.winfo_screenheight()
-        window_width = min(1200, int(screen_width * 0.95))
-        window_height = min(820, int(screen_height * 0.85))
-        self.geometry(f"{window_width}x{window_height}")
-        self.minsize(900, 620)
-        self.maxsize(window_width, window_height)
-        # ancho efectivo para contener los frames centrados
-        self._main_width = window_width
+        self.geometry("1400x800")
+
+        self.minsize(900, 500)
+
+        self.resizable(True, True)
 
         self.configure(
             bg=COLOR_FONDO
@@ -128,6 +121,139 @@ class VentanaPedidos(tk.Toplevel):
     def crear_widgets(self):
 
         # ==========================
+        # CANVAS SCROLLEABLE (contenedor raíz)
+        # ==========================
+        # Garantiza que, sin importar la resolución de pantalla del
+        # usuario, siempre se pueda hacer scroll para ver los botones
+        # de abajo (FINALIZAR PEDIDO / VACIAR), aunque la ventana no
+        # entre completa en la pantalla.
+
+        contenedor = tk.Frame(self, bg=COLOR_FONDO)
+
+        contenedor.pack(fill="both", expand=True)
+
+        self.canvas_principal = tk.Canvas(
+
+            contenedor,
+
+            bg=COLOR_FONDO,
+
+            highlightthickness=0
+
+        )
+
+        scrollbar_y = ttk.Scrollbar(
+
+            contenedor,
+
+            orient="vertical",
+
+            command=self.canvas_principal.yview
+
+        )
+
+        self.canvas_principal.configure(
+
+            yscrollcommand=scrollbar_y.set
+
+        )
+
+        self.canvas_principal.pack(
+
+            side="left",
+
+            fill="both",
+
+            expand=True
+
+        )
+
+        scrollbar_y.pack(side="right", fill="y")
+
+        self.scroll_frame = tk.Frame(
+
+            self.canvas_principal,
+
+            bg=COLOR_FONDO
+
+        )
+
+        self._scroll_frame_id = self.canvas_principal.create_window(
+
+            (0, 0),
+
+            window=self.scroll_frame,
+
+            anchor="nw"
+
+        )
+
+        def _actualizar_scrollregion(event=None):
+
+            self.canvas_principal.configure(
+
+                scrollregion=self.canvas_principal.bbox("all")
+
+            )
+
+        def _ajustar_ancho_frame(event):
+
+            self.canvas_principal.itemconfig(
+
+                self._scroll_frame_id,
+
+                width=event.width
+
+            )
+
+        self.scroll_frame.bind(
+
+            "<Configure>",
+
+            _actualizar_scrollregion
+
+        )
+
+        self.canvas_principal.bind(
+
+            "<Configure>",
+
+            _ajustar_ancho_frame
+
+        )
+
+        def _on_mousewheel(event):
+
+            # Windows/Mac mandan delta en múltiplos de 120; Linux usa Button-4/5
+            delta = -1 * (event.delta // 120) if event.delta else 0
+
+            self.canvas_principal.yview_scroll(int(delta), "units")
+
+        self.canvas_principal.bind_all(
+
+            "<MouseWheel>",
+
+            _on_mousewheel
+
+        )
+
+        self.canvas_principal.bind_all(
+
+            "<Button-4>",
+
+            lambda e: self.canvas_principal.yview_scroll(-1, "units")
+
+        )
+
+        self.canvas_principal.bind_all(
+
+            "<Button-5>",
+
+            lambda e: self.canvas_principal.yview_scroll(1, "units")
+
+        )
+
+        # ==========================
         # LOGO
         # ==========================
 
@@ -140,7 +266,7 @@ class VentanaPedidos(tk.Toplevel):
 
             tk.Label(
 
-                self,
+                self.scroll_frame,
 
                 image=self.logo,
 
@@ -161,7 +287,7 @@ class VentanaPedidos(tk.Toplevel):
 
         tk.Label(
 
-            self,
+            self.scroll_frame,
 
             text="NUEVO PEDIDO",
 
@@ -175,14 +301,6 @@ class VentanaPedidos(tk.Toplevel):
             pady=(0,10)
         )
 
-        # Contenedor centrado (ancho fijo relativo, pero con expansión vertical)
-        main_frame_width = int(self._main_width * 0.95)
-        self.main_frame = tk.Frame(self, bg=COLOR_FONDO, width=main_frame_width)
-        self.main_frame.pack(fill='both', expand=True, padx=10, pady=5)
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_columnconfigure(0, weight=1)
-
-
 
         # ==========================
         # BUSQUEDA
@@ -190,7 +308,7 @@ class VentanaPedidos(tk.Toplevel):
 
         frame_busqueda = tk.LabelFrame(
 
-            self.main_frame,
+            self.scroll_frame,
 
             text="Buscar producto",
 
@@ -239,7 +357,7 @@ class VentanaPedidos(tk.Toplevel):
 
         frame_resultados = tk.LabelFrame(
 
-            self.main_frame,
+            self.scroll_frame,
 
             text="Productos",
 
@@ -253,13 +371,13 @@ class VentanaPedidos(tk.Toplevel):
 
         frame_resultados.pack(
 
-            fill="x",
+            fill="both",
 
-            expand=False,
+            expand=True,
 
             padx=10,
 
-            pady=3
+            pady=5
 
         )
 
@@ -277,24 +395,17 @@ class VentanaPedidos(tk.Toplevel):
 
         )
 
-        # Contenedor para Treeview + scrollbar
-        frame_tree_results = tk.Frame(frame_resultados, bg=COLOR_FONDO)
-        frame_tree_results.pack(fill="both", expand=True, padx=6, pady=6)
-
         self.tree_resultados = ttk.Treeview(
 
-            frame_tree_results,
+            frame_resultados,
 
             columns=columnas,
 
             show="headings",
 
-            height=7
+            height=10
 
         )
-
-        scrollbar_res = ttk.Scrollbar(frame_tree_results, orient="vertical", command=self.tree_resultados.yview)
-        self.tree_resultados.configure(yscrollcommand=scrollbar_res.set)
 
         for col in columnas:
 
@@ -306,8 +417,17 @@ class VentanaPedidos(tk.Toplevel):
 
             )
 
-        self.tree_resultados.pack(side="left", fill="both", expand=True)
-        scrollbar_res.pack(side="right", fill="y")
+        self.tree_resultados.pack(
+
+            fill="both",
+
+            expand=True,
+
+            padx=10,
+
+            pady=10
+
+        )
         
 
 
@@ -317,7 +437,7 @@ class VentanaPedidos(tk.Toplevel):
 
         frame_agregar = tk.LabelFrame(
 
-            self.main_frame,
+            self.scroll_frame,
 
             text="Agregar producto",
 
@@ -335,7 +455,7 @@ class VentanaPedidos(tk.Toplevel):
 
             padx=10,
 
-            pady=3
+            pady=5
 
         )
 
@@ -449,12 +569,12 @@ class VentanaPedidos(tk.Toplevel):
 
 
         # ==========================
-        # PEDIDO ACTUAL (FRAME CONTENEDOR)
+        # PEDIDO ACTUAL
         # ==========================
 
-        frame_pedido_contenedor = tk.LabelFrame(
+        frame_pedido = tk.LabelFrame(
 
-            self.main_frame,
+            self.scroll_frame,
 
             text="Pedido actual",
 
@@ -466,14 +586,17 @@ class VentanaPedidos(tk.Toplevel):
 
         )
 
-        frame_pedido_contenedor.pack(
-            fill="both",
-            expand=True,
-            padx=10,
-            pady=5,
-            ipady=5
-        )
+        frame_pedido.pack(
 
+            fill="both",
+
+            expand=True,
+
+            padx=10,
+
+            pady=5
+
+        )
 
 
         columnas2 = (
@@ -495,43 +618,18 @@ class VentanaPedidos(tk.Toplevel):
         )
 
 
-        # Frame para el treeview con scrollbar
-        frame_tree_scroll = tk.Frame(frame_pedido_contenedor, bg=COLOR_FONDO)
-        frame_tree_scroll.pack(fill="both", expand=True, padx=10, pady=8)
-
-
-        # Scrollbar
-        scrollbar_pedido = ttk.Scrollbar(frame_tree_scroll)
-        scrollbar_pedido.pack(side="right", fill="y")
-
         self.tree_pedido = ttk.Treeview(
 
-            frame_tree_scroll,
+            frame_pedido,
 
             columns=columnas2,
 
             show="headings",
 
-            height=8,
-
-            yscrollcommand=scrollbar_pedido.set
+            height=10
 
         )
 
-        
-        scrollbar_pedido.config(command=self.tree_pedido.yview)
-
-
-        # Configurar columnas con widths
-        anchos = {
-            "ID": 40,
-            "Producto": 300,
-            "Tipo": 60,
-            "Cantidad": 70,
-            "Unidades": 80,
-            "Precio": 80,
-            "Subtotal": 100
-        }
 
         for col in columnas2:
 
@@ -542,22 +640,19 @@ class VentanaPedidos(tk.Toplevel):
                 text=col
 
             )
-            
-            self.tree_pedido.column(
-                col,
-                width=anchos.get(col, 80),
-                anchor="center"
-            )
 
 
         self.tree_pedido.pack(
 
             fill="both",
 
-            expand=True
+            expand=True,
+
+            padx=10,
+
+            pady=10
 
         )
-
 
 
         # ==========================
@@ -566,7 +661,7 @@ class VentanaPedidos(tk.Toplevel):
 
         self.lbl_total = tk.Label(
 
-            self,
+            self.scroll_frame,
 
             text="TOTAL: $0,00",
 
@@ -578,7 +673,7 @@ class VentanaPedidos(tk.Toplevel):
 
                 "Segoe UI",
 
-                16,
+                22,
 
                 "bold"
 
@@ -588,9 +683,7 @@ class VentanaPedidos(tk.Toplevel):
 
         self.lbl_total.pack(
 
-            pady=10,
-
-            fill="x"
+            pady=10
 
         )
 
@@ -601,7 +694,7 @@ class VentanaPedidos(tk.Toplevel):
 
         frame_botones = tk.Frame(
 
-            self.main_frame,
+            self.scroll_frame,
 
             bg=COLOR_FONDO
 
@@ -609,9 +702,7 @@ class VentanaPedidos(tk.Toplevel):
 
         frame_botones.pack(
 
-            pady=15,
-
-            fill="x"
+            pady=15
 
         )
 
@@ -620,13 +711,13 @@ class VentanaPedidos(tk.Toplevel):
 
             frame_botones,
 
-            text="finalizar pedido",
+            text="FINALIZAR PEDIDO",
 
             bg=COLOR_AZUL,
 
             fg="white",
 
-            width=25,
+            width=22,
 
             font=FUENTE_BOTON,
 
@@ -636,7 +727,7 @@ class VentanaPedidos(tk.Toplevel):
 
             side="left",
 
-            padx=15
+            padx=10
 
         )
 
@@ -645,8 +736,7 @@ class VentanaPedidos(tk.Toplevel):
 
             frame_botones,
 
-
-            text="🗑 VACIAR",
+            text="VACIAR",
 
             bg=COLOR_ROJO,
 
@@ -662,9 +752,7 @@ class VentanaPedidos(tk.Toplevel):
 
             side="left",
 
-            padx=15,
-
-            expand=True
+            padx=10
 
         )
 # ==================================
@@ -972,12 +1060,6 @@ class VentanaPedidos(tk.Toplevel):
 
         for item in self.pedido.obtener_items():
 
-            # Formatear valores para visualización
-            precio_formateado = f"${item['precio']:,.0f}"
-            subtotal_formateado = f"${item['subtotal']:,.0f}"
-            cantidad_formateada = f"{item['cantidad']:g}"
-            unidades_formateadas = f"{item['unidades']:g}"
-
             self.tree_pedido.insert(
 
                 "",
@@ -992,13 +1074,13 @@ class VentanaPedidos(tk.Toplevel):
 
                     item["tipo"],
 
-                    cantidad_formateada,
+                    item["cantidad"],
 
-                    unidades_formateadas,
+                    item["unidades"],
 
-                    precio_formateado,
+                    item["precio"],
 
-                    subtotal_formateado
+                    item["subtotal"]
 
                 )
 
@@ -1161,45 +1243,19 @@ class VentanaPedidos(tk.Toplevel):
 
         try:
 
-            # Preguntar dónde guardar el PDF
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            default_name = f"pedido_{pedido_id}_{timestamp}.pdf"
-            save_path = filedialog.asksaveasfilename(
-                parent=self,
-                defaultextension=".pdf",
-                filetypes=[("PDF files", "*.pdf")],
-                initialfile=default_name,
-                title="Guardar pedido como"
+            generar_pedido_azul(
+
+                items,
+
+                cliente="",
+
+                vendedor=nombre_usuario,
+
+                numero=str(pedido_id)
+
             )
 
-            if save_path:
-                filepath = generar_pedido_guardar(
-                    save_path,
-                    items,
-                    cliente="",
-                    vendedor=nombre_usuario,
-                    numero=str(pedido_id)
-                )
-            else:
-                # Si el usuario cancela, guardamos en proyecto con nombre por defecto
-                filepath = generar_pedido_guardar(
-                    default_name,
-                    items,
-                    cliente="",
-                    vendedor=nombre_usuario,
-                    numero=str(pedido_id)
-                )
-
             pdf_ok = True
-
-            # Intentar abrir el PDF generado (Windows)
-            try:
-                abs_path = os.path.abspath(filepath)
-                if os.name == 'nt':
-                    os.startfile(abs_path)
-            except Exception:
-                # No crítico si no se puede abrir automáticamente
-                pass
 
         except Exception as e:
 
