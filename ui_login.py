@@ -16,9 +16,9 @@ class VentanaLogin:
 
         self.root.title("Stockify V2")
 
-        self.root.geometry("500x650")
+        self.root.geometry("500x560")
 
-        self.root.resizable(False, False)
+        self.root.resizable(True, True)
 
         self.root.configure(
             bg=COLOR_FONDO
@@ -83,7 +83,7 @@ class VentanaLogin:
 
             ).pack(
 
-                pady=(30,10)
+                pady=(18,8)
 
             )
 
@@ -98,7 +98,7 @@ class VentanaLogin:
 
             frame,
 
-            text="STOCKIFY",
+            text="Iniciar Sesión",
 
             bg=COLOR_FONDO,
 
@@ -117,7 +117,7 @@ class VentanaLogin:
 
             bg=COLOR_FONDO,
 
-            fg="gray",
+            fg=COLOR_GRIS,
 
             font=FUENTE_NORMAL
 
@@ -138,15 +138,25 @@ class VentanaLogin:
 
             bg=COLOR_FONDO,
 
+            fg=COLOR_BLANCO,
+
             font=FUENTE_SUBTITULO
 
         ).pack()
 
-        self.entry_usuario = ttk.Entry(
+        self.entry_usuario = tk.Entry(
 
             frame,
 
-            width=30
+            width=30,
+
+            bg=COLOR_PANEL,
+
+            fg=COLOR_BLANCO,
+
+            insertbackground=COLOR_BLANCO,
+
+            relief="flat"
 
         )
 
@@ -169,6 +179,8 @@ class VentanaLogin:
 
             bg=COLOR_FONDO,
 
+            fg=COLOR_BLANCO,
+
             font=FUENTE_SUBTITULO
 
         ).pack(
@@ -177,13 +189,21 @@ class VentanaLogin:
 
         )
 
-        self.entry_password = ttk.Entry(
+        self.entry_password = tk.Entry(
 
             frame,
 
             width=30,
 
-            show="*"
+            show="*",
+
+            bg=COLOR_PANEL,
+
+            fg=COLOR_BLANCO,
+
+            insertbackground=COLOR_BLANCO,
+
+            relief="flat"
 
         )
 
@@ -200,13 +220,23 @@ class VentanaLogin:
 
         self.recordar = tk.BooleanVar()
 
-        ttk.Checkbutton(
+        tk.Checkbutton(
 
             frame,
 
             text="Recordarme",
 
-            variable=self.recordar
+            variable=self.recordar,
+
+            bg=COLOR_FONDO,
+
+            fg=COLOR_BLANCO,
+
+            activebackground=COLOR_FONDO,
+
+            selectcolor=COLOR_PANEL,
+
+            highlightthickness=0
 
         ).pack(
 
@@ -225,7 +255,7 @@ class VentanaLogin:
 
             bg=COLOR_AZUL,
 
-            fg="white",
+            fg=COLOR_BLANCO,
 
             font=FUENTE_BOTON,
 
@@ -235,7 +265,7 @@ class VentanaLogin:
 
         ).pack(
 
-            pady=15,
+            pady=(12,12),
 
             ipady=8
 
@@ -252,7 +282,7 @@ class VentanaLogin:
 
             bg=COLOR_FONDO,
 
-            fg="gray"
+            fg=COLOR_GRIS
 
         ).pack(
 

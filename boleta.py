@@ -538,13 +538,14 @@ def generar_pedido_azul(
         productos,
         cliente="",
         vendedor="",
-        numero=""
+        numero="",
+        nombre_archivo="pedido.pdf"
 
 ):
 
     return generar_documento(
 
-        "pedido.pdf",
+        nombre_archivo,
 
         "PEDIDO",
 

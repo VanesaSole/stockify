@@ -5,6 +5,7 @@ from database import (
     obtener_usuario_por_email,
     actualizar_password
 )
+from tema import *
 
 
 class RecoverWindow:
@@ -16,15 +17,22 @@ class RecoverWindow:
         root.title("Recuperar Contraseña")
 
         root.geometry("500x650")
+        root.configure(bg=COLOR_FONDO)
 
         tk.Label(
             root,
-            text="Email"
+            text="Email",
+            bg=COLOR_FONDO,
+            font=FUENTE_SUBTITULO
         ).pack(pady=10)
 
         self.entry_email = tk.Entry(
             root,
-            width=40
+            width=40,
+            bg=COLOR_PANEL,
+            fg=COLOR_BLANCO,
+            insertbackground=COLOR_BLANCO,
+            relief="flat"
         )
 
         self.entry_email.pack()
@@ -32,6 +40,9 @@ class RecoverWindow:
         tk.Button(
             root,
             text="Buscar Usuario",
+            bg=COLOR_AZUL,
+            fg=COLOR_BLANCO,
+            activebackground=COLOR_CELESTE,
             command=self.buscar_usuario
         ).pack(pady=15)
 
@@ -68,12 +79,18 @@ class RecoverWindow:
 
             tk.Label(
                 self.root,
-                text=p
+                text=p,
+                bg=COLOR_FONDO,
+                font=FUENTE_NORMAL
             ).pack()
 
             e = tk.Entry(
                 self.root,
-                width=40
+                width=40,
+                bg=COLOR_PANEL,
+                fg=COLOR_BLANCO,
+                insertbackground=COLOR_BLANCO,
+                relief="flat"
             )
 
             e.pack(pady=4)
@@ -82,13 +99,19 @@ class RecoverWindow:
 
         tk.Label(
             self.root,
-            text="Nueva contraseña"
+            text="Nueva contraseña",
+            bg=COLOR_FONDO,
+            font=FUENTE_SUBTITULO
         ).pack(pady=10)
 
         self.nueva_password = tk.Entry(
             self.root,
             show="*",
-            width=40
+            width=40,
+            bg=COLOR_PANEL,
+            fg=COLOR_BLANCO,
+            insertbackground=COLOR_BLANCO,
+            relief="flat"
         )
 
         self.nueva_password.pack()
@@ -96,8 +119,9 @@ class RecoverWindow:
         tk.Button(
             self.root,
             text="Cambiar Contraseña",
-            bg="#173A7A",
-            fg="white",
+            bg=COLOR_AZUL,
+            fg=COLOR_BLANCO,
+            activebackground=COLOR_CELESTE,
             command=self.validar
         ).pack(pady=20)
 

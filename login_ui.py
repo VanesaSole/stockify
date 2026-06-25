@@ -9,6 +9,7 @@ from auth import (
     iniciar_sesion
 )
 
+from tema import *
 from ui import App
 
 
@@ -21,6 +22,7 @@ class LoginUI:
         self.root.title("Stockify Login")
 
         self.root.geometry("500x600")
+        self.root.configure(bg=COLOR_FONDO)
 
         self.root.resizable(False, False)
 
@@ -38,30 +40,45 @@ class LoginUI:
             self.root,
             text="STOCKIFY",
             font=("Arial", 28, "bold"),
-            fg="#173A7A"
+            fg=COLOR_AZUL,
+            bg=COLOR_FONDO
         ).pack(pady=30)
 
         tk.Label(
             self.root,
-            text="Email"
+            text="Email",
+            fg=COLOR_BLANCO,
+            bg=COLOR_FONDO,
+            font=FUENTE_NORMAL
         ).pack()
 
         self.email = tk.Entry(
             self.root,
-            width=35
+            width=35,
+            bg=COLOR_PANEL,
+            fg=COLOR_BLANCO,
+            insertbackground=COLOR_BLANCO,
+            relief="flat"
         )
 
         self.email.pack(pady=5)
 
         tk.Label(
             self.root,
-            text="Contraseña"
+            text="Contraseña",
+            fg=COLOR_BLANCO,
+            bg=COLOR_FONDO,
+            font=FUENTE_NORMAL
         ).pack()
 
         self.password = tk.Entry(
             self.root,
             width=35,
-            show="*"
+            show="*",
+            bg=COLOR_PANEL,
+            fg=COLOR_BLANCO,
+            insertbackground=COLOR_BLANCO,
+            relief="flat"
         )
 
         self.password.pack(pady=5)
@@ -70,8 +87,8 @@ class LoginUI:
             self.root,
             text="Iniciar Sesión",
             width=25,
-            bg="#173A7A",
-            fg="white",
+            bg=COLOR_AZUL,
+            fg=COLOR_BLANCO,
             command=self.login
         ).pack(pady=20)
 
@@ -79,6 +96,9 @@ class LoginUI:
             self.root,
             text="Registrarse",
             width=25,
+            bg=COLOR_PANEL,
+            fg=COLOR_BLANCO,
+            activebackground=COLOR_AZUL,
             command=self.crear_registro
         ).pack()
 
@@ -94,7 +114,8 @@ class LoginUI:
             self.root,
             text="Registro",
             font=("Arial", 24, "bold"),
-            fg="#173A7A"
+            fg=COLOR_AZUL,
+            bg=COLOR_FONDO
         ).pack(pady=20)
 
         self.reg_nombre = self.crear_input("Nombre")
@@ -119,8 +140,8 @@ class LoginUI:
             self.root,
             text="Crear Cuenta",
             width=25,
-            bg="#173A7A",
-            fg="white",
+            bg=COLOR_AZUL,
+            fg=COLOR_BLANCO,
             command=self.registrar
         ).pack(pady=20)
 
@@ -128,6 +149,9 @@ class LoginUI:
             self.root,
             text="Volver",
             width=25,
+            bg=COLOR_PANEL,
+            fg=COLOR_BLANCO,
+            activebackground=COLOR_AZUL,
             command=self.crear_login
         ).pack()
 
@@ -143,13 +167,20 @@ class LoginUI:
 
         tk.Label(
             self.root,
-            text=texto
+            text=texto,
+            fg=COLOR_BLANCO,
+            bg=COLOR_FONDO,
+            font=FUENTE_NORMAL
         ).pack()
 
         entry = tk.Entry(
             self.root,
             width=35,
-            show="*" if oculto else ""
+            show="*" if oculto else "",
+            bg=COLOR_PANEL,
+            fg=COLOR_BLANCO,
+            insertbackground=COLOR_BLANCO,
+            relief="flat"
         )
 
         entry.pack(pady=5)

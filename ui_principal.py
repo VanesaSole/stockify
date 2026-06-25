@@ -215,7 +215,7 @@ class VentanaPrincipal:
 
             text="Historial",
 
-            bg=COLOR_GRIS,
+            bg=COLOR_TOPO,
 
             fg="white",
 

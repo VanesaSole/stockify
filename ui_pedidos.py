@@ -1,11 +1,13 @@
 # ui_pedidos.py
 
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, filedialog
+from datetime import datetime
 
 from pedidos import Pedido
 from inventario import buscar_productos, obtener_producto
 from boleta import generar_pedido_azul
+import os
 
 from tema import *
 
@@ -18,14 +20,51 @@ class VentanaPedidos(tk.Toplevel):
 
         self.title("Nuevo Pedido")
 
-        self.geometry("1400x800")
-
-        self.minsize(900, 500)
-
-        self.resizable(True, True)
+        # Se usa el cálculo dinámico de Marcus para que se adapte a cualquier monitor
+        self.update_idletasks()
+        screen_width = self.winfo_screenwidth()
+        screen_height = self.winfo_screenheight()
+        window_width = min(1200, int(screen_width * 0.95))
+        window_height = min(820, int(screen_height * 0.85))
+        self.geometry(f"{window_width}x{window_height}")
+        self.minsize(900, 620)
 
         self.configure(
             bg=COLOR_FONDO
+        )
+
+        # Configuración de estilos visuales oscuros traídos de Marcus
+        style = ttk.Style(self)
+        try:
+            style.theme_use('clam')
+        except Exception:
+            pass
+        style.configure(
+            'Dark.Treeview',
+            background=COLOR_PANEL,
+            fieldbackground=COLOR_PANEL,
+            foreground=COLOR_BLANCO,
+            rowheight=28,
+            bordercolor=COLOR_GRIS,
+            lightcolor=COLOR_GRIS,
+            darkcolor=COLOR_GRIS
+        )
+        style.configure(
+            'Dark.Treeview.Heading',
+            background=COLOR_AZUL,
+            foreground=COLOR_BLANCO,
+            relief='flat'
+        )
+        style.map(
+            'Dark.Treeview',
+            background=[('selected', COLOR_AZUL)],
+            foreground=[('selected', COLOR_BLANCO)]
+        )
+        style.configure(
+            'Dark.TCombobox',
+            fieldbackground=COLOR_PANEL,
+            background=COLOR_PANEL,
+            foreground=COLOR_BLANCO
         )
 
         # usuario = (id, nombre, rol) según auth.validar_login
@@ -121,13 +160,8 @@ class VentanaPedidos(tk.Toplevel):
     def crear_widgets(self):
 
         # ==========================
-        # CANVAS SCROLLEABLE (contenedor raíz)
+        # CANVAS SCROLLEABLE (contenedor raíz - Diseño de Vane e IA)
         # ==========================
-        # Garantiza que, sin importar la resolución de pantalla del
-        # usuario, siempre se pueda hacer scroll para ver los botones
-        # de abajo (FINALIZAR PEDIDO / VACIAR), aunque la ventana no
-        # entre completa en la pantalla.
-
         contenedor = tk.Frame(self, bg=COLOR_FONDO)
 
         contenedor.pack(fill="both", expand=True)
@@ -224,7 +258,6 @@ class VentanaPedidos(tk.Toplevel):
 
         def _on_mousewheel(event):
 
-            # Windows/Mac mandan delta en múltiplos de 120; Linux usa Button-4/5
             delta = -1 * (event.delta // 120) if event.delta else 0
 
             self.canvas_principal.yview_scroll(int(delta), "units")
@@ -312,11 +345,13 @@ class VentanaPedidos(tk.Toplevel):
 
             text="Buscar producto",
 
-            bg=COLOR_FONDO,
+            bg=COLOR_PANEL,
 
-            fg=COLOR_AZUL,
+            fg=COLOR_BLANCO,
 
-            font=FUENTE_SUBTITULO
+            font=FUENTE_SUBTITULO,
+
+            labelanchor='nw'
 
         )
 
@@ -330,13 +365,27 @@ class VentanaPedidos(tk.Toplevel):
 
         )
 
-        self.entry_busqueda = ttk.Entry(
+        self.entry_busqueda = tk.Entry(
 
             frame_busqueda,
 
             textvariable=self.var_busqueda,
 
-            width=70
+            width=70,
+
+            bg=COLOR_PANEL,
+
+            fg=COLOR_BLANCO,
+
+            insertbackground=COLOR_BLANCO,
+
+            relief='flat',
+
+            highlightthickness=1,
+
+            highlightbackground=COLOR_GRIS,
+
+            highlightcolor=COLOR_AZUL
 
         )
 
@@ -361,11 +410,13 @@ class VentanaPedidos(tk.Toplevel):
 
             text="Productos",
 
-            bg=COLOR_FONDO,
+            bg=COLOR_PANEL,
 
-            fg=COLOR_AZUL,
+            fg=COLOR_BLANCO,
 
-            font=FUENTE_SUBTITULO
+            font=FUENTE_SUBTITULO,
+
+            labelanchor='nw'
 
         )
 
@@ -403,7 +454,9 @@ class VentanaPedidos(tk.Toplevel):
 
             show="headings",
 
-            height=10
+            height=7,
+
+            style='Dark.Treeview'
 
         )
 
@@ -441,11 +494,13 @@ class VentanaPedidos(tk.Toplevel):
 
             text="Agregar producto",
 
-            bg=COLOR_FONDO,
+            bg=COLOR_PANEL,
 
-            fg=COLOR_AZUL,
+            fg=COLOR_BLANCO,
 
-            font=FUENTE_SUBTITULO
+            font=FUENTE_SUBTITULO,
+
+            labelanchor='nw'
 
         )
 
@@ -466,7 +521,9 @@ class VentanaPedidos(tk.Toplevel):
 
             text="Cantidad",
 
-            bg=COLOR_FONDO,
+            bg=COLOR_PANEL,
+
+            fg=COLOR_BLANCO,
 
             font=FUENTE_NORMAL
 
@@ -479,13 +536,27 @@ class VentanaPedidos(tk.Toplevel):
         )
 
 
-        self.entry_cantidad = ttk.Entry(
+        self.entry_cantidad = tk.Entry(
 
             frame_agregar,
 
             textvariable=self.var_cantidad,
 
-            width=8
+            width=8,
+
+            bg=COLOR_PANEL,
+
+            fg=COLOR_BLANCO,
+
+            insertbackground=COLOR_BLANCO,
+
+            relief='flat',
+
+            highlightthickness=1,
+
+            highlightbackground=COLOR_GRIS,
+
+            highlightcolor=COLOR_AZUL
 
         )
 
@@ -512,7 +583,9 @@ class VentanaPedidos(tk.Toplevel):
 
             ],
 
-            width=12
+            width=12,
+
+            style='Dark.TCombobox'
 
         ).pack(
 
@@ -529,7 +602,7 @@ class VentanaPedidos(tk.Toplevel):
 
             text="AGREGAR",
 
-            bg=COLOR_VERDE,
+            bg=COLOR_CELESTE,
 
             fg="white",
 
@@ -578,11 +651,13 @@ class VentanaPedidos(tk.Toplevel):
 
             text="Pedido actual",
 
-            bg=COLOR_FONDO,
+            bg=COLOR_PANEL,
 
-            fg=COLOR_AZUL,
+            fg=COLOR_BLANCO,
 
-            font=FUENTE_SUBTITULO
+            font=FUENTE_SUBTITULO,
+
+            labelanchor='nw'
 
         )
 
@@ -617,7 +692,6 @@ class VentanaPedidos(tk.Toplevel):
 
         )
 
-
         self.tree_pedido = ttk.Treeview(
 
             frame_pedido,
@@ -626,7 +700,9 @@ class VentanaPedidos(tk.Toplevel):
 
             show="headings",
 
-            height=10
+            height=15,
+
+            style='Dark.Treeview'
 
         )
 
@@ -656,7 +732,7 @@ class VentanaPedidos(tk.Toplevel):
 
 
         # ==========================
-        # TOTAL
+        # TOTAL Y BOTONES
         # ==========================
 
         self.lbl_total = tk.Label(
@@ -687,10 +763,6 @@ class VentanaPedidos(tk.Toplevel):
 
         )
 
-
-        # ==========================
-        # BOTONES
-        # ==========================
 
         frame_botones = tk.Frame(
 
@@ -750,9 +822,9 @@ class VentanaPedidos(tk.Toplevel):
 
         ).pack(
 
-            side="left",
+            side="right",
 
-            padx=10
+            padx=15
 
         )
 # ==================================
@@ -974,7 +1046,7 @@ class VentanaPedidos(tk.Toplevel):
 
         unidades_pedidas = cantidad * paq if tipo.upper() == "BULTO" else cantidad
 
-        # Si el mismo producto ya está en el carrito (pedido actual, aún
+        # Si el mismo producto ya está en el carrito... (pedido actual, aún
         # no descontado de la BD), sumamos sus unidades para no permitir
         # que dos líneas independientes superen el stock real entre ambas.
         unidades_ya_en_carrito = sum(
@@ -1203,6 +1275,19 @@ class VentanaPedidos(tk.Toplevel):
 
             return
 
+        nombre_inicial = f"pedido_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+
+        ruta_pdf = filedialog.asksaveasfilename(
+            defaultextension=".pdf",
+            filetypes=[("PDF", "*.pdf")],
+            title="Guardar pedido como",
+            initialfile=nombre_inicial
+        )
+
+        if not ruta_pdf:
+
+            return
+
         try:
 
             pedido_id = self.pedido.procesar_pedido(
@@ -1251,7 +1336,9 @@ class VentanaPedidos(tk.Toplevel):
 
                 vendedor=nombre_usuario,
 
-                numero=str(pedido_id)
+                numero=str(pedido_id),
+
+                nombre_archivo=ruta_pdf
 
             )
 
