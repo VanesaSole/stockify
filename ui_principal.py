@@ -391,7 +391,7 @@ class VentanaPrincipal:
 
             fila1,
 
-            "🚚 Envíos del día",
+            bg=COLOR_TOPO,
 
             COLOR_VERDE
 
