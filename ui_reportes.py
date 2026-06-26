@@ -15,7 +15,7 @@ class VentanaReportes(tk.Toplevel):
         self.geometry("1400x850")
 
         self.configure(
-            bg=COLOR_FONDO
+            bg=COLOR_CELESTE
         )
 
         self.crear_widgets()
@@ -50,7 +50,7 @@ class VentanaReportes(tk.Toplevel):
 
                 image=self.logo,
 
-                bg=COLOR_FONDO
+                bg=COLOR_CELESTE
 
             ).pack(
 
@@ -71,9 +71,9 @@ class VentanaReportes(tk.Toplevel):
 
             text="REPORTES",
 
-            bg=COLOR_FONDO,
+            bg=COLOR_CELESTE,
 
-            fg=COLOR_CELESTE,
+            fg=COLOR_BLANCO,
 
             font=FUENTE_TITULO
 
@@ -83,6 +83,48 @@ class VentanaReportes(tk.Toplevel):
 
         )
 
+        style = ttk.Style(self)
+        try:
+            style.theme_use('clam')
+        except Exception:
+            pass
+        style.configure(
+            'Report.Treeview',
+            background=COLOR_PANEL,
+            fieldbackground=COLOR_PANEL,
+            foreground=COLOR_BLANCO,
+            rowheight=28,
+            bordercolor=COLOR_GRIS,
+            lightcolor=COLOR_GRIS,
+            darkcolor=COLOR_GRIS
+        )
+        style.configure(
+            'Report.Treeview.Heading',
+            background=COLOR_FONDO,
+            foreground=COLOR_BLANCO,
+            relief='flat'
+        )
+        style.map(
+            'Report.Treeview',
+            background=[('selected', COLOR_CELESTE)],
+            foreground=[('selected', COLOR_BLANCO)]
+        )
+        style.configure(
+            'TNotebook',
+            background=COLOR_CELESTE,
+            fieldbackground=COLOR_CELESTE
+        )
+        style.configure(
+            'TNotebook.Tab',
+            background=COLOR_CELESTE,
+            foreground=COLOR_BLANCO,
+            padding=(10, 5)
+        )
+        style.map(
+            'TNotebook.Tab',
+            background=[('selected', COLOR_CELESTE)],
+            foreground=[('selected', COLOR_BLANCO)]
+        )
 
         notebook = ttk.Notebook(self)
 
@@ -101,7 +143,7 @@ class VentanaReportes(tk.Toplevel):
 
         # STOCK BAJO
 
-        frame_stock_bajo = ttk.Frame(notebook)
+        frame_stock_bajo = tk.Frame(notebook, bg=COLOR_CELESTE)
 
         notebook.add(
 
@@ -127,7 +169,9 @@ class VentanaReportes(tk.Toplevel):
 
             columns=columnas_stock,
 
-            show="headings"
+            show="headings",
+
+            style='Report.Treeview'
 
         )
 
@@ -152,7 +196,7 @@ class VentanaReportes(tk.Toplevel):
 
         # SIN STOCK
 
-        frame_sin_stock = ttk.Frame(notebook)
+        frame_sin_stock = tk.Frame(notebook, bg=COLOR_CELESTE)
 
         notebook.add(
 
@@ -176,7 +220,9 @@ class VentanaReportes(tk.Toplevel):
 
             columns=columnas_sin_stock,
 
-            show="headings"
+            show="headings",
+
+            style='Report.Treeview'
 
         )
 
@@ -201,7 +247,7 @@ class VentanaReportes(tk.Toplevel):
 
         # MAS VENDIDOS
 
-        frame_mas_vendidos = ttk.Frame(notebook)
+        frame_mas_vendidos = tk.Frame(notebook, bg=COLOR_CELESTE)
 
         notebook.add(
 
@@ -225,7 +271,9 @@ class VentanaReportes(tk.Toplevel):
 
             columns=columnas_mas_vendidos,
 
-            show="headings"
+            show="headings",
+
+            style='Report.Treeview'
 
         )
 
@@ -254,7 +302,7 @@ class VentanaReportes(tk.Toplevel):
 
             self,
 
-            bg=COLOR_FONDO
+            bg=COLOR_CELESTE
 
         )
 

@@ -60,6 +60,10 @@ def crear_tablas():
         password TEXT NOT NULL,
 
         rol TEXT NOT NULL,
+        
+        direccion TEXT,
+
+        telefono TEXT,
 
         sucursal_id INTEGER,
 
@@ -243,7 +247,52 @@ def crear_admin():
 
     conn.close()
 
+# =====================================================
+# SUCURSALES POR DEFECTO
+# =====================================================
 
+def crear_sucursales():
+
+        conn = obtener_conexion()
+
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT COUNT(*) FROM sucursales")
+
+        cantidad = cursor.fetchone()[0]
+
+        if cantidad == 0:
+
+            sucursales = [
+
+                ("Sucursal Central", "Av. Hipólito Yrigoyen 1994", "11-4000-1000"),
+
+                ("Sucursal Lanús Este", "Av. 9 de Julio 350", "11-4000-1001"),
+
+                ("Sucursal Avellaneda", "Mitre 250", "11-4000-1002"),
+
+                ("Sucursal Lomas de Zamora", "Laprida 120", "11-4000-1003")
+
+            ]
+
+            cursor.executemany("""
+
+            INSERT INTO sucursales(
+
+                nombre,
+                direccion,
+                telefono
+
+            )
+
+            VALUES (?, ?, ?)
+
+            """, sucursales)
+
+        conn.commit()
+
+        conn.close()
+        
 # =====================================================
 # INICIALIZAR BD
 # =====================================================
@@ -251,5 +300,7 @@ def crear_admin():
 def inicializar_bd():
 
     crear_tablas()
+    
+    crear_sucursales()
 
     crear_admin()

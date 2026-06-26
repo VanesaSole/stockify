@@ -8,6 +8,8 @@ from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
 
+from tema import *
+
 from logic import (
     buscar_productos,
     agregar_producto,
@@ -38,7 +40,7 @@ class App:
 
         self.root.geometry("1200x700")
 
-        self.root.configure(bg="#F4F6F8")
+        self.root.configure(bg=COLOR_FONDO)
 
         # =================================================
         # DATOS USUARIO
@@ -149,7 +151,7 @@ class App:
 
         top_frame = tk.Frame(
             self.root,
-            bg="#F4F6F8"
+            bg=COLOR_FONDO
         )
 
         top_frame.pack(pady=10)
@@ -158,7 +160,7 @@ class App:
             top_frame,
             text="Cargar Catálogo",
             command=self.cargar_catalogo_ui,
-            bg="#173A7A",
+            bg=COLOR_AZUL,
             fg="white",
             font=("Arial", 10, "bold"),
             width=18,
@@ -169,7 +171,7 @@ class App:
             top_frame,
             text="Cambiar Pedido / Envío",
             command=self.cambiar_modo_ui,
-            bg="#2E7D32",
+            bg=COLOR_VERDE,
             fg="white",
             font=("Arial", 10, "bold"),
             width=22,
@@ -180,7 +182,7 @@ class App:
             top_frame,
             text="Cerrar Sesión",
             command=self.cerrar_sesion,
-            bg="#C62828",
+            bg=COLOR_ROJO,
             fg="white",
             font=("Arial", 10, "bold"),
             width=18,
@@ -194,8 +196,8 @@ class App:
         self.label_modo = tk.Label(
             self.root,
             text="Modo: PEDIDO",
-            fg="#173A7A",
-            bg="#F4F6F8",
+            fg=COLOR_AZUL,
+            bg=COLOR_FONDO,
             font=("Arial", 12, "bold")
         )
 
@@ -208,8 +210,8 @@ class App:
         self.label_usuario = tk.Label(
             self.root,
             text=f"Sesión iniciada: {self.nombre_usuario}",
-            bg="#F4F6F8",
-            fg="#555555",
+            bg=COLOR_FONDO,
+            fg=COLOR_GRIS,
             font=("Arial", 10)
         )
 
@@ -281,7 +283,7 @@ class App:
 
         frame = tk.Frame(
             self.root,
-            bg="#F4F6F8"
+            bg=COLOR_FONDO
         )
 
         frame.pack(pady=10)
@@ -289,7 +291,7 @@ class App:
         tk.Label(
             frame,
             text="Cantidad",
-            bg="#F4F6F8"
+            bg=COLOR_FONDO
         ).grid(row=0, column=0)
 
         self.entrada_cantidad = tk.Entry(
@@ -312,7 +314,7 @@ class App:
             frame,
             text="Agregar",
             command=self.agregar_producto_ui,
-            bg="#173A7A",
+            bg=COLOR_AZUL,
             fg="white",
             width=15
         ).grid(
@@ -325,7 +327,7 @@ class App:
             frame,
             text="Eliminar",
             command=self.eliminar_producto_ui,
-            bg="#C62828",
+            bg=COLOR_ROJO,
             fg="white",
             width=15
         ).grid(
@@ -344,7 +346,7 @@ class App:
 
         frame_tipo = tk.Frame(
             self.root,
-            bg="#F4F6F8"
+            bg=COLOR_FONDO
         )
 
         frame_tipo.pack(pady=5)
@@ -352,7 +354,7 @@ class App:
         tk.Label(
             frame_tipo,
             text="Tipo:",
-            bg="#F4F6F8",
+            bg=COLOR_FONDO,
             font=("Arial", 10, "bold")
         ).grid(row=0, column=0, padx=5)
 
@@ -361,7 +363,7 @@ class App:
             text="Unidad",
             variable=self.tipo_carga,
             value="UNIDAD",
-            bg="#F4F6F8"
+            bg=COLOR_FONDO
         ).grid(row=0, column=1)
 
         tk.Radiobutton(
@@ -369,7 +371,7 @@ class App:
             text="Bulto",
             variable=self.tipo_carga,
             value="BULTO",
-            bg="#F4F6F8"
+            bg=COLOR_FONDO
         ).grid(row=0, column=2)
 
         # =================================================
@@ -430,7 +432,7 @@ class App:
             self.root,
             text="Finalizar Pedido",
             command=self.finalizar_pedido_ui,
-            bg="#173A7A",
+            bg=COLOR_AZUL,
             fg="white",
             font=("Arial", 11, "bold"),
             width=25,

@@ -44,7 +44,7 @@ class VentanaUsuarios(tk.Toplevel):
         try:
 
             self.logo = tk.PhotoImage(
-                file="assets/logo.png"
+                file="assets/logo5.png"
             )
 
             self.logo = self.logo.subsample(5,5)
@@ -222,6 +222,28 @@ class VentanaUsuarios(tk.Toplevel):
 
         )
 
+        style = ttk.Style()
+
+        style.theme_use("clam")
+
+        style.configure(
+            "Usuarios.Treeview",
+            background=COLOR_PANEL,
+            fieldbackground=COLOR_PANEL,
+            foreground=COLOR_BLANCO,
+            rowheight=28
+        )
+
+        style.configure(
+            "Usuarios.Treeview.Heading",
+            background=COLOR_VIOLETA,
+            foreground="white"
+        )
+
+        style.map(
+            "Usuarios.Treeview",
+            background=[("selected", COLOR_CELESTE)]
+        ) 
 
         columnas = (
 
@@ -246,7 +268,10 @@ class VentanaUsuarios(tk.Toplevel):
 
             columns=columnas,
 
-            show="headings"
+            show="headings",
+            
+            style="Usuarios.Treeview"
+
 
         )
 
@@ -407,37 +432,49 @@ class VentanaNuevoUsuario(tk.Toplevel):
         frame.pack(padx=20, pady=10, fill="both", expand=True)
 
 
-        tk.Label(frame, text="Nombre:", bg=COLOR_FONDO, font=FUENTE_NORMAL).grid(row=0, column=0, sticky="w", pady=5)
+        tk.Label(frame, text="Nombre:", bg=COLOR_FONDO,fg=COLOR_BLANCO, font=FUENTE_NORMAL).grid(row=0, column=0, sticky="w", pady=5)
 
         self.entry_nombre = ttk.Entry(frame, width=30)
 
         self.entry_nombre.grid(row=0, column=1, pady=5, padx=10)
 
 
-        tk.Label(frame, text="Email:", bg=COLOR_FONDO, font=FUENTE_NORMAL).grid(row=1, column=0, sticky="w", pady=5)
+        tk.Label(frame, text="Email:", bg=COLOR_FONDO,fg=COLOR_BLANCO, font=FUENTE_NORMAL).grid(row=1, column=0, sticky="w", pady=5)
 
         self.entry_email = ttk.Entry(frame, width=30)
 
         self.entry_email.grid(row=1, column=1, pady=5, padx=10)
+        
+        tk.Label(frame, text="Dirección:", bg=COLOR_FONDO, fg=COLOR_BLANCO, font=FUENTE_NORMAL).grid(row=2, column=0, sticky="w", pady=5)
+
+        self.entry_direccion = ttk.Entry(frame, width=30)
+
+        self.entry_direccion.grid(row=2, column=1, pady=5, padx=10)
+        
+        tk.Label(frame, text="Teléfono:", bg=COLOR_FONDO, fg=COLOR_BLANCO, font=FUENTE_NORMAL).grid(row=3, column=0, sticky="w", pady=5)
+
+        self.entry_telefono = ttk.Entry(frame, width=30)
+
+        self.entry_telefono.grid(row=3, column=1, pady=5, padx=10)
 
 
-        tk.Label(frame, text="Contraseña:", bg=COLOR_FONDO, font=FUENTE_NORMAL).grid(row=2, column=0, sticky="w", pady=5)
+        tk.Label(frame, text="Contraseña:", bg=COLOR_FONDO,fg=COLOR_BLANCO, font=FUENTE_NORMAL).grid(row=4, column=0, sticky="w", pady=5)
 
         self.entry_password = ttk.Entry(frame, width=30, show="*")
 
-        self.entry_password.grid(row=2, column=1, pady=5, padx=10)
+        self.entry_password.grid(row=4, column=1, pady=5, padx=10)
 
 
-        tk.Label(frame, text="Rol:", bg=COLOR_FONDO, font=FUENTE_NORMAL).grid(row=3, column=0, sticky="w", pady=5)
+        tk.Label(frame, text="Rol:", bg=COLOR_FONDO,fg=COLOR_BLANCO, font=FUENTE_NORMAL).grid(row=5, column=0, sticky="w", pady=5)
 
-        self.combo_rol = ttk.Combobox(frame, values=["ADMIN", "VENDEDOR"], state="readonly", width=28)
+        self.combo_rol = ttk.Combobox(frame, values=["ADMIN", "VENDEDOR", "ENCARGADO"], state="readonly", width=28)
 
         self.combo_rol.set("VENDEDOR")
 
-        self.combo_rol.grid(row=3, column=1, pady=5, padx=10)
+        self.combo_rol.grid(row=5, column=1, pady=5, padx=10)
 
 
-        tk.Label(frame, text="Sucursal:", bg=COLOR_FONDO, font=FUENTE_NORMAL).grid(row=4, column=0, sticky="w", pady=5)
+        tk.Label(frame, text="Sucursal:", bg=COLOR_FONDO,fg=COLOR_BLANCO, font=FUENTE_NORMAL).grid(row=6, column=0, sticky="w", pady=5)
 
 
         from sucursales import obtener_sucursales
@@ -453,7 +490,7 @@ class VentanaNuevoUsuario(tk.Toplevel):
 
             self.combo_sucursal.set(nombres_sucursales[0])
 
-        self.combo_sucursal.grid(row=4, column=1, pady=5, padx=10)
+        self.combo_sucursal.grid(row=6, column=1, pady=5, padx=10)
 
 
         btn_frame = tk.Frame(self, bg=COLOR_FONDO)
@@ -504,6 +541,10 @@ class VentanaNuevoUsuario(tk.Toplevel):
         nombre = self.entry_nombre.get().strip()
 
         email = self.entry_email.get().strip()
+        
+        direccion = self.entry_direccion.get().strip()
+
+        telefono = self.entry_telefono.get().strip()
 
         password = self.entry_password.get()
 
@@ -532,7 +573,7 @@ class VentanaNuevoUsuario(tk.Toplevel):
 
         from usuarios import crear_usuario
 
-        exito = crear_usuario(nombre, email, password, rol, sucursal_id)
+        exito = crear_usuario(nombre, email, password, rol, direccion, telefono,  sucursal_id)
 
         if exito:
 

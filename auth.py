@@ -21,24 +21,50 @@ def validar_login(usuario, password):
     if usuario.strip().lower() == "admin":
 
         cursor.execute("""
-        SELECT id, nombre, rol
-        FROM usuarios
-        WHERE rol = 'ADMIN'
-        AND password = ?
-        AND activo = 1
+        SELECT
+
+            u.id,
+            u.nombre,
+            u.email,
+            u.rol,
+            u.direccion,
+            u.telefono,
+            s.nombre
+
+        FROM usuarios u
+
+        LEFT JOIN sucursales s
+        ON u.sucursal_id = s.id
+
+        WHERE u.rol = 'ADMIN'
+        AND u.password = ?
+        AND u.activo = 1
         """, (password,))
 
     else:
 
         cursor.execute("""
-        SELECT id, nombre, rol
-        FROM usuarios
-        WHERE email = ?
-        AND password = ?
-        AND activo = 1
+        SELECT
+
+            u.id,
+            u.nombre,
+            u.email,
+            u.rol,
+            u.direccion,
+            u.telefono,
+            s.nombre
+
+        FROM usuarios u
+
+        LEFT JOIN sucursales s
+        ON u.sucursal_id = s.id
+
+        WHERE u.email = ?
+        AND u.password = ?
+        AND u.activo = 1
         """, (
 
-            usuario,
+            usuario.strip().lower(),
             password
 
         ))
@@ -46,6 +72,9 @@ def validar_login(usuario, password):
     resultado = cursor.fetchone()
 
     conn.close()
+    
+    print("LOGIN:", usuario, password)
+    print("RESULTADO:", resultado)
 
     return resultado
 

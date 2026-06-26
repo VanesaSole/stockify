@@ -311,6 +311,8 @@ class Pedido:
 
         for item in self.items:
 
+            print(item)
+
             registrar_movimiento(
 
                 usuario_id=usuario_id,
@@ -324,8 +326,7 @@ class Pedido:
                 observacion="Pedido generado"
 
             )
-
-
+            
     # =====================================================
     # PROCESAR PEDIDO COMPLETO
     # =====================================================

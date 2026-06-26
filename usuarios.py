@@ -15,6 +15,8 @@ def crear_usuario(
     email,
     password,
     rol,
+    direccion,
+    telefono,
     sucursal_id
 
 ):
@@ -32,31 +34,37 @@ def crear_usuario(
             email,
             password,
             rol,
+            direccion,
+            telefono,
             sucursal_id,
             activo,
             fecha_creacion
 
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
 
-            nombre.strip(),
+        nombre.strip(),
 
-            email.strip().lower(),
+        email.strip().lower(),
 
-            password,
+        password,
 
-            rol,
+        rol,
 
-            sucursal_id,
+        direccion.strip(),
 
-            1,
+        telefono.strip(),
 
-            datetime.now().strftime(
-                "%Y-%m-%d %H:%M:%S"
-            )
+        sucursal_id,
 
-        ))
+        1,
+
+        datetime.now().strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )
+
+    ))
 
         conn.commit()
 

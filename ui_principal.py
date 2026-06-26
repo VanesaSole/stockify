@@ -1,8 +1,12 @@
+# ==========================================
 # ui_principal.py
+# Stockify V3
+# ==========================================
 
 import tkinter as tk
-from tkinter import ttk
 from datetime import datetime
+
+from tema import *
 
 from ui_pedidos import VentanaPedidos
 from ui_envios import VentanaEnvios
@@ -10,52 +14,112 @@ from ui_historial import VentanaHistorial
 from ui_reportes import VentanaReportes
 from ui_usuarios import VentanaUsuarios
 from ui_admin import VentanaAdmin
-from tema import *
+
 
 class VentanaPrincipal:
 
     def __init__(self, usuario=None, master=None):
 
-        # VentanaPrincipal siempre administra su propia ventana raíz
-        # (tk.Tk()), incluso si se le pasa un "master": Tkinter no
-        # admite múltiples instancias de Tk() en el mismo proceso,
-        # así que cualquier ventana anterior (por ejemplo, el login)
-        # debe destruirse antes de llegar a este punto.
-        self._master_externo = master
+        self.usuario = usuario
+
+        self.master = master
 
         self.root = tk.Tk()
 
-        self.usuario = usuario
+        self.root.title("Stockify V3")
 
-        self.root.title("Stockify V2")
+        self.root.geometry("1600x900")
 
-        self.root.geometry("900x650")
-
-        self.root.resizable(True, True)
-
-        self.crear_widgets()
-
-        # Atajos teclado
-
-        self.root.bind("<F1>", lambda e: self.abrir_pedidos())
-
-        self.root.bind("<F2>", lambda e: self.abrir_envios())
-
-        self.root.bind("<F3>", lambda e: self.abrir_historial())
-
-        self.root.bind("<F4>", lambda e: self.abrir_reportes())
-
-        self.root.mainloop()
-
-
-    # ===================================
-    # WIDGETS
-    # ===================================
-
-    def crear_widgets(self):
+        self.root.minsize(1400, 800)
 
         self.root.configure(
             bg=COLOR_FONDO
+        )
+
+        try:
+            self.root.state("zoomed")
+        except:
+            pass
+
+# =====================================
+# NAVEGACIÓN DEL MENÚ
+# =====================================
+
+        self.menu_actual = 0
+
+        self.crear_widgets()
+        
+        self.aplicar_permisos()
+        
+        self.configurar_atajos()
+        
+        self.actualizar_menu()
+
+        self.root.bind("<Up>", self.menu_arriba)
+        self.root.bind("<Down>", self.menu_abajo)
+        self.root.bind("<Return>", self.menu_enter)
+
+        self.actualizar_reloj()
+
+        self.root.mainloop()
+
+    # =====================================
+    # INICIO
+    # =====================================
+
+    def inicio(self):
+        pass
+    
+    # =====================================
+# INTERFAZ PRINCIPAL
+# =====================================
+
+    def crear_widgets(self):
+
+        # ==========================
+        # CONTENEDOR GENERAL
+        # ==========================
+
+        self.frame_principal = tk.Frame(
+            self.root,
+            bg=COLOR_FONDO
+        )
+
+        self.frame_principal.pack(
+            fill="both",
+            expand=True
+        )
+
+        # ==========================
+        # MENU LATERAL
+        # ==========================
+
+        self.frame_menu = tk.Frame(
+            self.frame_principal,
+            bg=COLOR_PANEL,
+            width=260
+        )
+
+        self.frame_menu.pack(
+            side="left",
+            fill="y"
+        )
+
+        self.frame_menu.pack_propagate(False)
+
+        # ==========================
+        # CONTENIDO
+        # ==========================
+
+        self.frame_contenido = tk.Frame(
+            self.frame_principal,
+            bg=COLOR_FONDO
+        )
+
+        self.frame_contenido.pack(
+            side="left",
+            fill="both",
+            expand=True
         )
 
         # ==========================
@@ -67,299 +131,609 @@ class VentanaPrincipal:
             self.logo = tk.PhotoImage(
                 file="assets/logo.png"
             )
-            self.logo = self.logo.subsample(4, 4)
+
+            self.logo = self.logo.subsample(6,6)
 
             tk.Label(
 
-                self.root,
+                self.frame_menu,
 
                 image=self.logo,
 
-                bg=COLOR_FONDO
+                bg=COLOR_PANEL
 
             ).pack(
-
-                pady=(20,10)
-
+                pady=(20,5)
             )
 
         except:
 
             pass
 
-
-        # ==========================
-        # TITULO
-        # ==========================
-
         tk.Label(
 
-            self.root,
+            self.frame_menu,
 
-            text="STOCKIFY V2",
+            text="Stockify",
 
-            bg=COLOR_FONDO,
+            bg=COLOR_PANEL,
 
-            fg=COLOR_AZUL,
+            fg=COLOR_BLANCO,
 
-            font=FUENTE_TITULO
+            font=("Segoe UI",20,"bold")
 
         ).pack()
 
+        tk.Label(
+
+            self.frame_menu,
+
+            text="Sistema de Gestión",
+
+            bg=COLOR_PANEL,
+
+            fg=COLOR_GRIS,
+
+            font=("Segoe UI",10)
+
+        ).pack(
+            pady=(0,25)
+        )
+
+        # ==========================
+        # MENU
+        # ==========================
+
+        self.frame_botones = tk.Frame(
+            self.frame_menu,
+            bg=COLOR_PANEL
+        )
+
+        self.frame_botones.pack(
+            fill="x",
+            padx=12
+        )
+
+        self.menu_botones = []
+
+        self.crear_boton(
+            "🏠  Inicio",
+            "F1",
+            COLOR_AZUL,
+            self.inicio
+        )
+
+        self.crear_boton(
+            "📦  Pedidos",
+            "F2",
+            COLOR_AZUL,
+            self.abrir_pedidos
+        )
+
+        self.crear_boton(
+            "🚚  Envíos",
+            "F3",
+            COLOR_VERDE,
+            self.abrir_envios
+        )
+
+        self.crear_boton(
+            "📊  Reportes",
+            "F4",
+            COLOR_CELESTE,
+            self.abrir_reportes
+        )
+
+        self.crear_boton(
+            "🕓  Historial",
+            "F5",
+            COLOR_TOPO,
+            self.abrir_historial
+        )
+
+        self.crear_boton(
+            "👤  Usuarios",
+            "F6",
+            COLOR_VIOLETA,
+            self.abrir_usuarios
+        )
+
+        self.crear_boton(
+            "⚙  Administración",
+            "F7",
+            COLOR_ROJO,
+            self.abrir_admin
+        )
+
+        tk.Frame(
+            self.frame_menu,
+            bg=COLOR_PANEL
+        ).pack(
+            fill="both",
+            expand=True
+        )
+
+        self.crear_boton(
+            "🚪  Salir",
+            "F8",
+            "#555555",
+            self.root.destroy
+        )
+
+        # ==========================
+        # ENCABEZADO
+        # ==========================
+
+        self.frame_superior = tk.Frame(
+            self.frame_contenido,
+            bg=COLOR_FONDO,
+            height=80
+        )
+
+        self.frame_superior.pack(
+            fill="x",
+            padx=30,
+            pady=(25,10)
+        )
+
+        self.frame_superior.pack_propagate(False)
 
         tk.Label(
 
-            self.root,
+            self.frame_superior,
 
-            text=datetime.now().strftime(
-                "%d/%m/%Y %H:%M"
-            ),
+            text="Dashboard",
+
+            bg=COLOR_FONDO,
+
+            fg=COLOR_BLANCO,
+
+            font=("Segoe UI",24,"bold")
+
+        ).pack(
+            anchor="w"
+        )
+
+        self.lbl_fecha = tk.Label(
+
+            self.frame_superior,
 
             bg=COLOR_FONDO,
 
             fg=COLOR_GRIS,
 
-            font=FUENTE_NORMAL
-
-        ).pack(
-
-            pady=(0,20)
+            font=("Segoe UI",11)
 
         )
 
+        self.lbl_fecha.pack(
+            anchor="w"
+        )
+        
+        nombre = "Invitado"
 
-        # ==========================
-        # BOTONES
-        # ==========================
+        if self.usuario:
+            nombre = self.usuario[1]
 
-        frame_botones = tk.Frame(
+        tk.Label(
 
-            self.root,
+            self.frame_superior,
+
+            text=f"Usuario: {nombre}",
+
+            bg=COLOR_FONDO,
+
+            fg=COLOR_BLANCO,
+
+            font=("Segoe UI",11,"bold")
+
+        ).pack(
+            anchor="w",
+            pady=(5,0)
+        )
+        
+        
+# =====================================
+# DASHBOARD
+# =====================================
+
+        self.dashboard = tk.Frame(
+
+            self.frame_contenido,
 
             bg=COLOR_FONDO
 
         )
 
-        frame_botones.pack()
+        self.dashboard.pack(
 
+            fill="both",
 
-        # FILA 1
+            expand=True,
 
-        tk.Button(
-
-            frame_botones,
-
-            text="Nuevo Pedido",
-
-            bg=COLOR_AZUL,
-
-            fg="white",
-
-            font=FUENTE_BOTON,
-
-            width=20,
-
-            height=2,
-
-            command=self.abrir_pedidos
-
-        ).grid(
-
-            row=0,
-
-            column=0,
-
-            padx=15,
+            padx=30,
 
             pady=10
 
         )
 
+        # ==============================
+        # FILA SUPERIOR
+        # ==============================
 
-        tk.Button(
+        fila1 = tk.Frame(
 
-            frame_botones,
+            self.dashboard,
 
-            text="Nuevo Envío",
+            bg=COLOR_FONDO
 
-            bg=COLOR_VERDE,
+        )
 
-            fg="white",
+        fila1.pack(
 
-            font=FUENTE_BOTON,
-
-            width=20,
-
-            height=2,
-
-            command=self.abrir_envios
-
-        ).grid(
-
-            row=0,
-
-            column=1,
-
-            padx=15,
+            fill="x",
 
             pady=10
 
         )
 
+        self.crear_panel(
 
-        # FILA 2
+            fila1,
 
-        tk.Button(
+            "📦 Pedidos del día",
 
-            frame_botones,
+            COLOR_AZUL
 
-            text="Historial",
+        )
 
-            bg=COLOR_GRIS,
+        self.crear_panel(
 
-            fg="white",
+            fila1,
 
-            font=FUENTE_BOTON,
+            "🚚 Envíos del día",
 
-            width=20,
+            COLOR_VERDE
 
-            height=2,
+        )
 
-            command=self.abrir_historial
+        # ==============================
+        # FILA CENTRAL
+        # ==============================
 
-        ).grid(
+        fila2 = tk.Frame(
 
-            row=1,
+            self.dashboard,
 
-            column=0,
+            bg=COLOR_FONDO
 
-            padx=15,
+        )
+
+        fila2.pack(
+
+            fill="x",
 
             pady=10
 
         )
 
+        self.crear_panel(
 
-        tk.Button(
+            fila2,
 
-            frame_botones,
+            "📊 Reportes",
 
-            text="Reportes",
+            COLOR_CELESTE
 
-            bg=COLOR_CELESTE,
+        )
 
-            fg="white",
+        self.crear_panel(
 
-            font=FUENTE_BOTON,
+            fila2,
 
-            width=20,
+            "📈 Estadísticas",
 
-            height=2,
+            COLOR_VIOLETA
 
-            command=self.abrir_reportes
+        )
 
-        ).grid(
+        # ==============================
+        # FILA INFERIOR
+        # ==============================
 
-            row=1,
+        fila3 = tk.Frame(
 
-            column=1,
+            self.dashboard,
 
-            padx=15,
+            bg=COLOR_FONDO
+
+        )
+
+        fila3.pack(
+
+            fill="both",
+
+            expand=True,
 
             pady=10
 
         )
 
+        self.crear_panel(
 
-        # FILA 3
+            fila3,
 
-        tk.Button(
+            "📝 Actividad reciente",
 
-            frame_botones,
+            COLOR_TOPO,
 
-            text="Usuarios",
-
-            bg=COLOR_VIOLETA,
-
-            fg="white",
-
-            font=FUENTE_BOTON,
-
-            width=20,
-
-            height=2,
-
-            command=self.abrir_usuarios
-
-        ).grid(
-
-            row=2,
-
-            column=0,
-
-            padx=15,
-
-            pady=10
+            expandir=True
 
         )
 
+        self.crear_panel(
 
-        tk.Button(
+            fila3,
 
-            frame_botones,
+            "⚠ Alertas",
 
-            text="Administración",
+            COLOR_ROJO,
 
-            bg=COLOR_ROJO,
-
-            fg="white",
-
-            font=FUENTE_BOTON,
-
-            width=20,
-
-            height=2,
-
-            command=self.abrir_admin
-
-        ).grid(
-
-            row=2,
-
-            column=1,
-
-            padx=15,
-
-            pady=10
+            expandir=True
 
         )
 
+# =====================================
+# CREAR BOTON DEL MENÚ
+# =====================================
 
-        # ==========================
-        # SALIR
-        # ==========================
+    def crear_boton(self, texto, tecla, color, comando):
 
-        tk.Button(
+        boton = tk.Button(
 
-            self.root,
+            self.frame_botones,
 
-            text="Salir",
+            text=f"{texto:<20} {tecla}",
 
-            width=20,
+            bg=color,
 
-            height=2,
+            fg="white",
 
-            font=FUENTE_BOTON,
+            activebackground=color,
 
-            command=self.root.destroy
+            activeforeground="white",
+
+            relief="flat",
+
+            bd=0,
+
+            padx=15,
+
+            pady=12,
+
+            anchor="w",
+
+            font=("Segoe UI",11,"bold"),
+
+            command=comando
+
+        )
+
+        boton.pack(
+
+            fill="x",
+
+            pady=5
+
+        )
+
+        self.menu_botones.append(boton)
+        
+# =====================================
+# PANEL DASHBOARD
+# =====================================
+
+    def crear_panel(self, parent, titulo, color, expandir=False):
+
+        panel = tk.Frame(
+
+            parent,
+
+            bg=COLOR_PANEL,
+
+            highlightbackground=color,
+
+            highlightthickness=2
+
+        )
+
+        panel.pack(
+
+            side="left",
+
+            fill="both",
+
+            expand=True,
+
+            padx=8,
+
+            pady=5
+
+        )
+
+        if expandir:
+
+            panel.configure(height=250)
+
+        else:
+
+            panel.configure(height=150)
+
+        panel.pack_propagate(False)
+
+        tk.Label(
+
+            panel,
+
+            text=titulo,
+
+            bg=COLOR_PANEL,
+
+            fg="white",
+
+            font=("Segoe UI",13,"bold")
 
         ).pack(
 
-            pady=25
+            anchor="w",
+
+            padx=15,
+
+            pady=(15,10)
 
         )
+
+        tk.Label(
+
+            panel,
+
+            text="Sin información",
+
+            bg=COLOR_PANEL,
+
+            fg=COLOR_GRIS,
+
+            font=("Segoe UI",11)
+
+        ).pack(
+
+            expand=True
+        )
+        
+    # =====================================
+    # RELOJ
+    # =====================================
+
+    def actualizar_reloj(self):
+
+        self.lbl_fecha.config(
+            text=datetime.now().strftime("%d/%m/%Y   %H:%M:%S")
+        )
+
+        self.root.after(1000, self.actualizar_reloj)
+
+
+    # =====================================
+    # NAVEGACIÓN DEL MENÚ
+    # =====================================
+
+    def actualizar_menu(self):
+
+        for i, boton in enumerate(self.menu_botones):
+
+            if i == self.menu_actual:
+
+                boton.configure(
+                    relief="solid",
+                    bd=3,
+                    highlightbackground="white",
+                    highlightthickness=2
+                )
+
+                boton.focus_set()
+
+            else:
+
+                boton.configure(
+                    relief="flat",
+                    bd=0,
+                    highlightthickness=0
+                )
     
-    
+    # =====================================
+# PERMISOS POR ROL
+# =====================================
+
+    def aplicar_permisos(self):
+
+        if not self.usuario:
+            return
+
+        rol = self.usuario[3]
+
+        # ADMIN -> ve todo
+        if rol == "ADMIN":
+            return
+
+        # VENDEDOR
+        if rol == "VENDEDOR":
+
+            self.menu_botones[3].pack_forget()   # Reportes
+            self.menu_botones[4].pack_forget()   # Historial
+            self.menu_botones[5].pack_forget()   # Usuarios
+            self.menu_botones[6].pack_forget()   # Administración
+
+        # ENCARGADO
+        elif rol == "ENCARGADO":
+
+            self.menu_botones[2].pack_forget()   # Envíos
+            self.menu_botones[3].pack_forget()   # Reportes
+            self.menu_botones[4].pack_forget()   # Historial
+            self.menu_botones[5].pack_forget()   # Usuarios
+            self.menu_botones[6].pack_forget()   # Administración
+
+
+    def menu_arriba(self, event=None):
+
+        self.menu_actual -= 1
+
+        if self.menu_actual < 0:
+            self.menu_actual = len(self.menu_botones) - 1
+
+        self.actualizar_menu()
+
+
+    def menu_abajo(self, event=None):
+
+        self.menu_actual += 1
+
+        if self.menu_actual >= len(self.menu_botones):
+            self.menu_actual = 0
+
+        self.actualizar_menu()
+
+
+    def menu_enter(self, event=None):
+
+        self.menu_botones[self.menu_actual].invoke()
+        
+# =====================================
+# ATAJOS SEGÚN EL ROL
+# =====================================
+
+    def configurar_atajos(self):
+
+        self.root.bind("<F1>", lambda e: self.inicio())
+        self.root.bind("<F2>", lambda e: self.abrir_pedidos())
+        self.root.bind("<F8>", lambda e: self.root.destroy())
+
+        if not self.usuario:
+            return
+
+        rol = self.usuario[3]
+
+        if rol in ("ADMIN", "VENDEDOR"):
+
+            self.root.bind("<F3>", lambda e: self.abrir_envios())
+
+        if rol == "ADMIN":
+
+            self.root.bind("<F4>", lambda e: self.abrir_reportes())
+            self.root.bind("<F5>", lambda e: self.abrir_historial())
+            self.root.bind("<F6>", lambda e: self.abrir_usuarios())
+            self.root.bind("<F7>", lambda e: self.abrir_admin())
+
+
     # ===================================
     # VENTANAS
     # ===================================
@@ -386,11 +760,14 @@ class VentanaPrincipal:
 
     def abrir_usuarios(self):
 
-        if not self.usuario or self.usuario[2] != "ADMIN":
+        if not self.usuario or self.usuario[3] != "ADMIN":
 
             from tkinter import messagebox
 
-            messagebox.showerror("Acceso Denegado", "Solo el administrador puede acceder a la gestión de usuarios.")
+            messagebox.showerror(
+                "Acceso Denegado",
+                "Solo el administrador puede acceder a la gestión de usuarios."
+            )
 
             return
 
@@ -399,17 +776,20 @@ class VentanaPrincipal:
 
     def abrir_admin(self):
 
-        if not self.usuario or self.usuario[2] != "ADMIN":
+        if not self.usuario or self.usuario[3] != "ADMIN":
 
             from tkinter import messagebox
 
-            messagebox.showerror("Acceso Denegado", "Solo el administrador puede acceder al panel de administración.")
+            messagebox.showerror(
+                "Acceso Denegado",
+                "Solo el administrador puede acceder al panel de administración."
+            )
 
             return
 
         VentanaAdmin(self.root)
 
 
-if __name__ == "__main__":
+        if __name__ == "__main__":
 
-    VentanaPrincipal()
+            VentanaPrincipal()

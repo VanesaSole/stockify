@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 
 from database import registrar_usuario
+from tema import *
 
 
 class RegisterWindow:
@@ -13,6 +14,7 @@ class RegisterWindow:
         root.title("Registro")
 
         root.geometry("500x750")
+        root.configure(bg=COLOR_FONDO)
 
         self.crear_campos()
 
@@ -42,12 +44,18 @@ class RegisterWindow:
 
             tk.Label(
                 self.root,
-                text=texto
+                text=texto,
+                bg=COLOR_FONDO,
+                font=FUENTE_NORMAL
             ).pack()
 
             entry = tk.Entry(
                 self.root,
-                width=40
+                width=40,
+                bg=COLOR_PANEL,
+                fg=COLOR_BLANCO,
+                insertbackground=COLOR_BLANCO,
+                relief="flat"
             )
 
             entry.pack(pady=4)
@@ -86,8 +94,8 @@ class RegisterWindow:
         tk.Button(
             self.root,
             text="Crear Cuenta",
-            bg="#173A7A",
-            fg="white",
+            bg=COLOR_AZUL,
+            fg=COLOR_BLANCO,
             width=25,
             command=self.registrar
         ).pack(pady=20)

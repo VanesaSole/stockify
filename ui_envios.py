@@ -19,7 +19,7 @@ class VentanaEnvios(tk.Toplevel):
         self.geometry("1400x850")
 
         self.configure(
-            bg=COLOR_FONDO
+            bg=COLOR_VERDE_OSCURO
         )
 
         self.pedido = Pedido()
@@ -102,8 +102,46 @@ class VentanaEnvios(tk.Toplevel):
     def crear_widgets(self):
 
         # ==========================
-        # LOGO
+        # SCROLL PRINCIPAL
         # ==========================
+
+        contenedor = tk.Frame(self, bg=COLOR_VERDE_OSCURO)
+        contenedor.pack(fill="both", expand=True)
+
+        self.canvas_principal = tk.Canvas(
+            contenedor,
+            bg=COLOR_VERDE_OSCURO,
+            highlightthickness=0
+        )
+        self.canvas_principal.pack(
+            side="left",
+            fill="both",
+            expand=True,
+            padx=10,
+            pady=5
+        )
+
+        scrollbar_vertical = ttk.Scrollbar(
+            contenedor,
+            orient="vertical",
+            command=self.canvas_principal.yview
+        )
+        scrollbar_vertical.pack(side="right", fill="y")
+
+        self.canvas_principal.configure(yscrollcommand=scrollbar_vertical.set)
+
+        self.main_frame = tk.Frame(self.canvas_principal, bg=COLOR_VERDE_OSCURO)
+        self.main_frame_window = self.canvas_principal.create_window((0, 0), window=self.main_frame, anchor="nw")
+
+        def _on_canvas_configure(event):
+            self.canvas_principal.itemconfigure(self.main_frame_window, width=event.width)
+            self.canvas_principal.configure(scrollregion=self.canvas_principal.bbox("all"))
+
+        self.canvas_principal.bind("<Configure>", _on_canvas_configure)
+
+        def _on_mousewheel(event):
+            self.canvas_principal.yview_scroll(int(-1*(event.delta/120)), "units")
+        self.canvas_principal.bind_all("<MouseWheel>", _on_mousewheel)
 
         try:
 
@@ -114,46 +152,57 @@ class VentanaEnvios(tk.Toplevel):
             self.logo = self.logo.subsample(5, 5)
 
             tk.Label(
-
-                self,
-
+                self.main_frame,
                 image=self.logo,
-
-                bg=COLOR_FONDO
-
-            ).pack(
-
-                pady=(10, 5)
-
-            )
+                bg=COLOR_VERDE_OSCURO
+            ).pack(pady=(10, 5))
 
         except:
 
             pass
 
-
-        # ==========================
-        # TITULO
-        # ==========================
-
         tk.Label(
-
-            self,
-
+            self.main_frame,
             text="NUEVO ENVÍO",
-
-            bg=COLOR_FONDO,
-
-            fg=COLOR_VERDE,
-
+            bg=COLOR_VERDE_OSCURO,
+            fg=COLOR_BLANCO,
             font=FUENTE_TITULO
-
         ).pack(
-
             pady=(0, 10)
-
         )
 
+        style = ttk.Style(self)
+        try:
+            style.theme_use('clam')
+        except Exception:
+            pass
+        style.configure(
+            'Dark.Treeview',
+            background=COLOR_VERDE_OSCURO,
+            fieldbackground=COLOR_VERDE_OSCURO,
+            foreground=COLOR_BLANCO,
+            rowheight=28,
+            bordercolor=COLOR_GRIS,
+            lightcolor=COLOR_GRIS,
+            darkcolor=COLOR_GRIS
+        )
+        style.configure(
+            'Dark.Treeview.Heading',
+            background=COLOR_VERDE,
+            foreground=COLOR_BLANCO,
+            relief='flat'
+        )
+        style.map(
+            'Dark.Treeview',
+            background=[('selected', COLOR_VERDE)],
+            foreground=[('selected', COLOR_BLANCO)]
+        )
+        style.configure(
+            'Dark.TCombobox',
+            fieldbackground=COLOR_VERDE_OSCURO,
+            background=COLOR_VERDE_OSCURO,
+            foreground=COLOR_BLANCO
+        )
 
         # ==========================
         # BUSQUEDA
@@ -161,15 +210,17 @@ class VentanaEnvios(tk.Toplevel):
 
         frame_busqueda = tk.LabelFrame(
 
-            self,
+            self.main_frame,
 
             text="Buscar producto",
 
-            bg=COLOR_FONDO,
+            bg=COLOR_VERDE_OSCURO,
 
-            fg=COLOR_VERDE,
+            fg=COLOR_BLANCO,
 
-            font=FUENTE_SUBTITULO
+            font=FUENTE_SUBTITULO,
+
+            labelanchor='nw'
 
         )
 
@@ -183,13 +234,27 @@ class VentanaEnvios(tk.Toplevel):
 
         )
 
-        self.entry_busqueda = ttk.Entry(
+        self.entry_busqueda = tk.Entry(
 
             frame_busqueda,
 
             textvariable=self.var_busqueda,
 
-            width=70
+            width=70,
+
+            bg=COLOR_VERDE_OSCURO,
+
+            fg=COLOR_BLANCO,
+
+            insertbackground=COLOR_BLANCO,
+
+            relief='flat',
+
+            highlightthickness=1,
+
+            highlightbackground=COLOR_BLANCO,
+
+            highlightcolor=COLOR_BLANCO
 
         )
 
@@ -210,15 +275,17 @@ class VentanaEnvios(tk.Toplevel):
 
         frame_resultados = tk.LabelFrame(
 
-            self,
+            self.main_frame,
 
             text="Productos",
 
-            bg=COLOR_FONDO,
+            bg=COLOR_VERDE_OSCURO,
 
-            fg=COLOR_VERDE,
+            fg=COLOR_BLANCO,
 
-            font=FUENTE_SUBTITULO
+            font=FUENTE_SUBTITULO,
+
+            labelanchor='nw'
 
         )
 
@@ -248,17 +315,25 @@ class VentanaEnvios(tk.Toplevel):
 
         )
 
+        frame_tree_results = tk.Frame(frame_resultados, bg=COLOR_VERDE_OSCURO)
+        frame_tree_results.pack(fill="both", expand=True, padx=6, pady=6)
+
         self.tree_resultados = ttk.Treeview(
 
-            frame_resultados,
+            frame_tree_results,
 
             columns=columnas,
 
             show="headings",
 
-            height=10
+            height=10,
+
+            style='Dark.Treeview'
 
         )
+
+        scrollbar_res = ttk.Scrollbar(frame_tree_results, orient="vertical", command=self.tree_resultados.yview)
+        self.tree_resultados.configure(yscrollcommand=scrollbar_res.set)
 
         for col in columnas:
 
@@ -272,15 +347,14 @@ class VentanaEnvios(tk.Toplevel):
 
         self.tree_resultados.pack(
 
+            side="left",
+
             fill="both",
 
-            expand=True,
-
-            padx=10,
-
-            pady=10
+            expand=True
 
         )
+        scrollbar_res.pack(side="right", fill="y")
 
 
         # ==========================
@@ -289,15 +363,17 @@ class VentanaEnvios(tk.Toplevel):
 
         frame_agregar = tk.LabelFrame(
 
-            self,
+            self.main_frame,
 
             text="Agregar producto",
 
-            bg=COLOR_FONDO,
+            bg=COLOR_VERDE_OSCURO,
 
-            fg=COLOR_VERDE,
+            fg=COLOR_BLANCO,
 
-            font=FUENTE_SUBTITULO
+            font=FUENTE_SUBTITULO,
+
+            labelanchor='nw'
 
         )
 
@@ -318,7 +394,9 @@ class VentanaEnvios(tk.Toplevel):
 
             text="Cantidad",
 
-            bg=COLOR_FONDO,
+            bg=COLOR_VERDE_OSCURO,
+
+            fg=COLOR_BLANCO,
 
             font=FUENTE_NORMAL
 
@@ -331,13 +409,27 @@ class VentanaEnvios(tk.Toplevel):
         )
 
 
-        ttk.Entry(
+        tk.Entry(
 
             frame_agregar,
 
             textvariable=self.var_cantidad,
 
-            width=8
+            width=8,
+
+            bg=COLOR_VERDE_OSCURO,
+
+            fg=COLOR_BLANCO,
+
+            insertbackground=COLOR_BLANCO,
+
+            relief='flat',
+
+            highlightthickness=1,
+
+            highlightbackground=COLOR_BLANCO,
+
+            highlightcolor=COLOR_BLANCO
 
         ).pack(
 
@@ -362,7 +454,9 @@ class VentanaEnvios(tk.Toplevel):
 
             ],
 
-            width=12
+            width=12,
+
+            style='Dark.TCombobox'
 
         ).pack(
 
@@ -379,9 +473,13 @@ class VentanaEnvios(tk.Toplevel):
 
             text="AGREGAR",
 
-            bg=COLOR_VERDE,
+            bg=COLOR_VERDE_OSCURO,
 
-            fg="white",
+            fg=COLOR_BLANCO,
+
+            activebackground=COLOR_VERDE,
+
+            activeforeground=COLOR_BLANCO,
 
             font=FUENTE_BOTON,
 
@@ -402,15 +500,17 @@ class VentanaEnvios(tk.Toplevel):
 
         frame_envio = tk.LabelFrame(
 
-            self,
+            self.main_frame,
 
             text="Envío actual",
 
-            bg=COLOR_FONDO,
+            bg=COLOR_VERDE_OSCURO,
 
-            fg=COLOR_VERDE,
+            fg=COLOR_BLANCO,
 
-            font=FUENTE_SUBTITULO
+            font=FUENTE_SUBTITULO,
+
+            labelanchor='nw'
 
         )
 
@@ -446,18 +546,25 @@ class VentanaEnvios(tk.Toplevel):
         )
 
 
+        frame_tree_envio = tk.Frame(frame_envio, bg=COLOR_VERDE_OSCURO)
+        frame_tree_envio.pack(fill="both", expand=True, padx=6, pady=6)
+
         self.tree_envio = ttk.Treeview(
 
-            frame_envio,
+            frame_tree_envio,
 
             columns=columnas2,
 
             show="headings",
 
-            height=10
+            height=10,
+
+            style='Dark.Treeview'
 
         )
 
+        scrollbar_envio = ttk.Scrollbar(frame_tree_envio, orient="vertical", command=self.tree_envio.yview)
+        self.tree_envio.configure(yscrollcommand=scrollbar_envio.set)
 
         for col in columnas2:
 
@@ -472,15 +579,14 @@ class VentanaEnvios(tk.Toplevel):
 
         self.tree_envio.pack(
 
+            side="left",
+
             fill="both",
 
-            expand=True,
-
-            padx=10,
-
-            pady=10
+            expand=True
 
         )
+        scrollbar_envio.pack(side="right", fill="y")
 
 
         # ==========================
@@ -489,13 +595,13 @@ class VentanaEnvios(tk.Toplevel):
 
         self.lbl_total = tk.Label(
 
-            self,
+            self.main_frame,
 
             text="TOTAL: $0,00",
 
-            bg=COLOR_FONDO,
+            bg=COLOR_VERDE_OSCURO,
 
-            fg=COLOR_VERDE,
+            fg=COLOR_BLANCO,
 
             font=(
 
@@ -522,9 +628,9 @@ class VentanaEnvios(tk.Toplevel):
 
         frame_botones = tk.Frame(
 
-            self,
+            self.main_frame,
 
-            bg=COLOR_FONDO
+            bg=COLOR_VERDE_OSCURO
 
         )
 
@@ -543,7 +649,11 @@ class VentanaEnvios(tk.Toplevel):
 
             bg=COLOR_VERDE,
 
-            fg="white",
+            fg=COLOR_BLANCO,
+
+            activebackground=COLOR_VERDE,
+
+            activeforeground=COLOR_BLANCO,
 
             width=15,
 
@@ -566,9 +676,13 @@ class VentanaEnvios(tk.Toplevel):
 
             text="GENERAR PDF",
 
-            bg=COLOR_CELESTE,
+            bg=COLOR_VERDE,
 
-            fg="white",
+            fg=COLOR_BLANCO,
+
+            activebackground=COLOR_VERDE,
+
+            activeforeground=COLOR_BLANCO,
 
             width=15,
 

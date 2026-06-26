@@ -16,9 +16,9 @@ class VentanaLogin:
 
         self.root.title("Stockify V2")
 
-        self.root.geometry("500x650")
+        self.root.geometry("500x560")
 
-        self.root.resizable(False, False)
+        self.root.resizable(True, True)
 
         self.root.configure(
             bg=COLOR_FONDO
@@ -26,10 +26,9 @@ class VentanaLogin:
 
         self.crear_widgets()
 
-        self.root.bind(
-            "<Return>",
-            self.ingresar
-        )
+        self.entry_usuario.bind("<Return>", self.ir_password)
+
+        self.entry_password.bind("<Return>", self.ingresar)
 
         self.root.bind(
             "<Escape>",
@@ -39,6 +38,8 @@ class VentanaLogin:
         self.entry_usuario.focus()
 
         self.root.mainloop()
+        
+        self.botones = []
 
 
     # ====================================
@@ -83,7 +84,7 @@ class VentanaLogin:
 
             ).pack(
 
-                pady=(30,10)
+                pady=(18,8)
 
             )
 
@@ -98,7 +99,7 @@ class VentanaLogin:
 
             frame,
 
-            text="STOCKIFY",
+            text="Iniciar Sesión",
 
             bg=COLOR_FONDO,
 
@@ -117,7 +118,7 @@ class VentanaLogin:
 
             bg=COLOR_FONDO,
 
-            fg="gray",
+            fg=COLOR_GRIS,
 
             font=FUENTE_NORMAL
 
@@ -138,15 +139,25 @@ class VentanaLogin:
 
             bg=COLOR_FONDO,
 
+            fg=COLOR_BLANCO,
+
             font=FUENTE_SUBTITULO
 
         ).pack()
 
-        self.entry_usuario = ttk.Entry(
+        self.entry_usuario = tk.Entry(
 
             frame,
 
-            width=30
+            width=30,
+
+            bg=COLOR_PANEL,
+
+            fg=COLOR_BLANCO,
+
+            insertbackground=COLOR_BLANCO,
+
+            relief="flat"
 
         )
 
@@ -169,6 +180,8 @@ class VentanaLogin:
 
             bg=COLOR_FONDO,
 
+            fg=COLOR_BLANCO,
+
             font=FUENTE_SUBTITULO
 
         ).pack(
@@ -177,13 +190,21 @@ class VentanaLogin:
 
         )
 
-        self.entry_password = ttk.Entry(
+        self.entry_password = tk.Entry(
 
             frame,
 
             width=30,
 
-            show="*"
+            show="*",
+
+            bg=COLOR_PANEL,
+
+            fg=COLOR_BLANCO,
+
+            insertbackground=COLOR_BLANCO,
+
+            relief="flat"
 
         )
 
@@ -200,13 +221,23 @@ class VentanaLogin:
 
         self.recordar = tk.BooleanVar()
 
-        ttk.Checkbutton(
+        tk.Checkbutton(
 
             frame,
 
             text="Recordarme",
 
-            variable=self.recordar
+            variable=self.recordar,
+
+            bg=COLOR_FONDO,
+
+            fg=COLOR_BLANCO,
+
+            activebackground=COLOR_FONDO,
+
+            selectcolor=COLOR_PANEL,
+
+            highlightthickness=0
 
         ).pack(
 
@@ -225,7 +256,7 @@ class VentanaLogin:
 
             bg=COLOR_AZUL,
 
-            fg="white",
+            fg=COLOR_BLANCO,
 
             font=FUENTE_BOTON,
 
@@ -235,7 +266,7 @@ class VentanaLogin:
 
         ).pack(
 
-            pady=15,
+            pady=(12,12),
 
             ipady=8
 
@@ -252,7 +283,7 @@ class VentanaLogin:
 
             bg=COLOR_FONDO,
 
-            fg="gray"
+            fg=COLOR_GRIS
 
         ).pack(
 
@@ -265,15 +296,18 @@ class VentanaLogin:
 
     def ingresar(self, event=None):
 
-        usuario = self.entry_usuario.get()
+        usuario = self.entry_usuario.get().strip()
 
         password = self.entry_password.get()
 
+        print("USUARIO:", repr(usuario))
+        print("PASSWORD:", repr(password))
 
         from auth import validar_login
 
         user_data = validar_login(usuario, password)
 
+        print("RESULTADO LOGIN:", user_data)
 
         if user_data:
 
@@ -298,6 +332,10 @@ class VentanaLogin:
                 "Usuario o contraseña incorrectos o cuenta inactiva"
 
             )
+            
+    def ir_password(self, event=None):
+
+        self.entry_password.focus_set()
 
 
 if __name__ == "__main__":

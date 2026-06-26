@@ -17,7 +17,7 @@ class VentanaHistorial(tk.Toplevel):
         self.geometry("1400x850")
 
         self.configure(
-            bg=COLOR_FONDO
+            bg=COLOR_TOPO
         )
 
         self.crear_widgets()
@@ -43,7 +43,7 @@ class VentanaHistorial(tk.Toplevel):
         try:
 
             self.logo = tk.PhotoImage(
-                file="assets/logo.png"
+                file="assets/logo6.png"
             )
 
             self.logo = self.logo.subsample(5, 5)
@@ -54,7 +54,7 @@ class VentanaHistorial(tk.Toplevel):
 
                 image=self.logo,
 
-                bg=COLOR_FONDO
+                bg=COLOR_TOPO
 
             ).pack(
 
@@ -75,9 +75,9 @@ class VentanaHistorial(tk.Toplevel):
 
             text="HISTORIAL",
 
-            bg=COLOR_FONDO,
+            bg=COLOR_TOPO,
 
-            fg=COLOR_GRIS,
+            fg=COLOR_BLANCO,
 
             font=FUENTE_TITULO
 
@@ -94,7 +94,7 @@ class VentanaHistorial(tk.Toplevel):
 
             self,
 
-            bg=COLOR_FONDO
+            bg=COLOR_TOPO
 
         )
 
@@ -157,6 +157,33 @@ class VentanaHistorial(tk.Toplevel):
 
         # TABLA
 
+        style = ttk.Style(self)
+        try:
+            style.theme_use('clam')
+        except Exception:
+            pass
+        style.configure(
+            'Top.Treeview',
+            background=COLOR_TOPO,
+            fieldbackground=COLOR_TOPO,
+            foreground=COLOR_BLANCO,
+            rowheight=28,
+            bordercolor=COLOR_GRIS,
+            lightcolor=COLOR_GRIS,
+            darkcolor=COLOR_GRIS
+        )
+        style.configure(
+            'Top.Treeview.Heading',
+            background="#4D5258",
+            foreground=COLOR_BLANCO,
+            relief='flat'
+        )
+        style.map(
+            'Top.Treeview',
+            background=[('selected', COLOR_CELESTE)],
+            foreground=[('selected', COLOR_BLANCO)]
+        )
+
         columnas = (
 
             "ID",
@@ -175,13 +202,18 @@ class VentanaHistorial(tk.Toplevel):
 
         )
 
+        frame_tabla = tk.Frame(self, bg=COLOR_TOPO)
+        frame_tabla.pack(fill="both", expand=True, padx=10, pady=10)
+
         self.tree = ttk.Treeview(
 
-            self,
+            frame_tabla,
 
             columns=columnas,
 
-            show="headings"
+            show="headings",
+
+            style='Top.Treeview'
 
         )
 
@@ -203,17 +235,19 @@ class VentanaHistorial(tk.Toplevel):
 
             )
 
+        scrollbar = ttk.Scrollbar(frame_tabla, orient="vertical", command=self.tree.yview)
+        self.tree.configure(yscrollcommand=scrollbar.set)
+
         self.tree.pack(
+
+            side="left",
 
             fill="both",
 
-            expand=True,
-
-            padx=10,
-
-            pady=10
+            expand=True
 
         )
+        scrollbar.pack(side="right", fill="y")
 
 
     # ====================================
